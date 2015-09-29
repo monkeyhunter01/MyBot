@@ -1,6 +1,4 @@
-
-
-﻿ What is it?
+What is it?
   -----------
 - A Free Clash of Clans bot. 
 - A bot is a general term in gaming that is used to refer to a character controlled by a computer.
@@ -25,7 +23,7 @@ Essential software :
 - BlueStacks App Player 0.9.24.5311 Superuser BSEasy ROOT by @swvr (Recommended)
 - The latest drivers for your graphics device
 - MyBot last version avaiable
-- DON´T USE THE OLD CONFIG FILES
+- DON�T USE THE OLD CONFIG FILES
 
 Licensing
   ---------
