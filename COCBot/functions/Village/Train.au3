@@ -744,20 +744,19 @@ Func Train()
 	EndIf
 EndFunc   ;==>Train
 
-
-
-Func IsTrainPage()
+ Func IsTrainPage()
 	Local $i = 0
-	While $i < 10
-		If _ColorCheck(_GetPixelColor(780, 546, True), Hex(0x8E4385, 6), 20) Or _ColorCheck(_GetPixelColor(780, 546, True), Hex(0x0F1304, 6), 20) Then ExitLoop
+	While $i < 30
+		; double color check  in the red x AND orange arrow
+		If _ColorCheck(_GetPixelColor(717, 120, True), Hex(0xE0070A, 6), 10) AND _ColorCheck(_GetPixelColor(762, 328, True), Hex(0xF18439, 6), 10) Then ExitLoop
 		_Sleep($iDelayIsTrainPage1)
 		$i += 1
 	WEnd
-	If $i < 10 Then
-		;If $DebugSetlog = 1 Then Setlog("**TrainPage OK**", $COLOR_PURPLE)
+	If $i < 30 Then
+		If $DebugSetlog = 1 Then Setlog("**TrainPage OK**", $COLOR_PURPLE)
 		Return True
 	Else
 		SetLog("Cannot find train page, return home.", $COLOR_RED)
 		Return False
 	EndIf
-EndFunc   ;==>IsTrainPage
+ EndFunc   ;==>IsTrainPage
