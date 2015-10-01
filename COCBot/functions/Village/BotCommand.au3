@@ -78,8 +78,8 @@ Func BotCommand()
 				If $Trophy <> "" Then SetLog($Trophy, $COLOR_GREEN)
 				If _Sleep($iDelayBotCommand1) Then Return
 			EndIf
-			Switch $icmbBotCommand
-				Case 0
+			Select
+				Case $icmbBotCommand = 0 Or $OutOfGold = 1 Or $OutOfElixir = 1
 					If $bDonationEnabled = False Then
 						SetLog("Halt Attack, Stay Online/Collect...", $COLOR_BLUE)
 					ElseIf $bTrainEnabled = False Then
@@ -89,22 +89,22 @@ Func BotCommand()
 					EndIf
 					$CommandStop = 0 ; Halt Attack
 					If _Sleep($iDelayBotCommand1) Then Return
-				Case 1
+				Case $icmbBotCommand = 1
 					SetLog("Force Shutdown PC...", $COLOR_BLUE)
 					If _Sleep($iDelayBotCommand1) Then Return
 					Shutdown(5) ; Force Shutdown
 					Return True
-				Case 2
+				Case $icmbBotCommand = 2
 					SetLog("Sleeping PC...", $COLOR_BLUE)
 					If _Sleep($iDelayBotCommand1) Then Return
 					Shutdown(32) ; Sleep / Stand by
 					Return True
-				Case 3
+				Case $icmbBotCommand = 3
 					SetLog("Reebooting PC...", $COLOR_BLUE)
 					If _Sleep($iDelayBotCommand1) Then Return
 					Shutdown($SD_REBOOT ) ; Reboot
 					Return True
-			EndSwitch
+			EndSelect
 		EndIf
 	EndIf
 	Return False

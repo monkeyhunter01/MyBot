@@ -117,12 +117,14 @@ Func runBot() ;Bot that runs everything in order
 					$OutOfGold = 0  ; reset out of gold flag
 					Setlog("Switching back to normal after no gold to search ...", $COLOR_RED)
 					$ichkBotStop = 0  ; reset halt attack variable
+					$icmbBotCond = $OldicmbBotCond  ; Restore use choice for halt condition
 					ContinueLoop ; Restart bot loop to reset $CommandStop
 				EndIf
 				If $OutOfElixir = 1  And ($ElixirCount >= $itxtRestartElixir) And ($DarkCount >= $itxtRestartDark) Then  ; check if enough elixir to begin searching again
 					$OutOfElixir = 0  ; reset out of gold flag
 					Setlog("Switching back to normal setting after no elixir to train ...", $COLOR_RED)
 					$ichkBotStop = 0  ; reset halt attack variable
+					$icmbBotCond = $OldicmbBotCond  ; Restore use choice for halt condition
 					ContinueLoop ; Restart bot loop to reset $CommandStop
 				EndIf
 				If _Sleep($iDelayRunBot5) Then Return
@@ -180,6 +182,7 @@ Func runBot() ;Bot that runs everything in order
 				If $OutOfGold = 1  Then
 					Setlog("Switching to Halt Attack, Stay Online/Collect mode ...", $COLOR_RED)
 					$ichkBotStop = 1  ; set halt attack variable
+					$OldicmbBotCond = $icmbBotCond  ; Store user choice for halt mode before change
 					$icmbBotCond = 16  ; set stay online/collect only mode
 					$FirstStart = True  ; reset First time flag to ensure army balancing when returns to training
 					ContinueLoop
@@ -197,6 +200,7 @@ Func runBot() ;Bot that runs everything in order
 			If $OutOfGold = 1  Then
 				Setlog("Switching to Halt Attack, Stay Online/Collect mode ...", $COLOR_RED)
 				$ichkBotStop = 1  ; set halt attack variable
+				$OldicmbBotCond = $icmbBotCond  ; Store user choice for halt mode before change
 				$icmbBotCond = 16  ; set stay online/collect only mode
 				$FirstStart = True  ; reset First time flag to ensure army balancing when returns to training
 				$Is_ClientSyncError = False  ; reset fast restart flag to stop OOS mode and start collecting resources

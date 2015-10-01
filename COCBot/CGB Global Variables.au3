@@ -276,6 +276,7 @@ Global $iUnbreakableMode = 0
 Global $iUnbreakableWait, $iUnBrkMinGold, $iUnBrkMinElixir, $iUnBrkMaxGold, $iUnBrkMaxElixir, $iUnBrkMinDark, $iUnBrkMaxDark
 Global $OutOfGold = 0 ; Flag for out of gold to search for attack
 Global $OutOfElixir = 0 ; Flag for out of elixir to train troops
+Global $OldicmbBotCond ; Temp store user halt condition selection during temporary halt
 
 ;Zoom/scroll variables for TH snipe, bottom corner
 Global $zoomedin = False, $zCount = 0, $sCount = 0
