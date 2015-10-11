@@ -2,7 +2,7 @@
 ; Name ..........: MBR Bot
 ; Description ...: This file contens the Sequence that runs all MBR Bot
 ; Author ........:  (2014)
-; Modified ......:
+; Modified ......: MonkeyHunter 2015-10
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
@@ -19,11 +19,11 @@
 #pragma compile(FileDescription, Clash of Clans Bot - A Free Clash of Clans bot - https://mybot.run)
 #pragma compile(ProductName, My Bot)
 
-#pragma compile(ProductVersion, 4.2)
-#pragma compile(FileVersion, 4.2)
+#pragma compile(ProductVersion, 4.2.MH.v1)
+#pragma compile(FileVersion, 4.2.MH.v1)
 #pragma compile(LegalCopyright, © https://mybot.run)
 
-$sBotVersion = "v4.2"
+$sBotVersion = "v4.2.MH.v1"
 $sBotTitle = "My Bot " & $sBotVersion
 Global $sBotDll = @ScriptDir & "\MBRPlugin.dll"
 
@@ -97,7 +97,10 @@ While 1
 	EndSwitch
 WEnd
 
-Func runBot() ;Bot that runs everything in order
+Func runBot() ;Bot that runs everything in order (randomization added to reduce heuristic bot detection)
+	Static Local $BotFunctions[12][2] = [ _   ; Array with list of functions to be run once each attack cycle, used to randomize order (anti-bot detect)
+		["Collect", ""], ["CheckTombs", ""], ["Rearm", ""], ["ReplayShare", "$iShareAttackNow"], ["ReportPushBullet", ""], _
+		["BoostBarracks", ""], ["BoostSpellFactory", ""], ["BoostDarkSpellFactory", ""], ["BoostKing", ""], ["BoostQueen", ""], ["RequestCC", ""], ["DonateCC", ""]]
 	$TotalTrainedTroops = 0
 	While 1
 		$Restart = False
@@ -138,46 +141,22 @@ Func runBot() ;Bot that runs everything in order
 				If _Sleep($iDelayRunBot5) Then Return
 				checkMainScreen(False)
 				If $Restart = True Then ContinueLoop
-			Collect()
+			_ArrayShuffle($BotFunctions) ; randomize order of the functions for antibot detection.
+			For $j = 0 To UBound($BotFunctions) - 1  ;Eexcute the randomize array of bot functions
+				If $DebugSetlog = 1 Then Setlog($BotFunctions[$j][0] & "(" & $BotFunctions[$j][1] & ")", $COLOR_PURPLE)
+				If $BotFunctions[$j][1] = "" Then ;check if function needs parameters passed
+					Call($BotFunctions[$j][0])
+				Else
+					Call($BotFunctions[$j][0], $BotFunctions[$j][1])
+				EndIf
+				If @error = 0xDEAD And @extended = 0xBEEF Then Setlog("Function does not exist", $COLOR_RED)
 				If _Sleep($iDelayRunBot1) Then Return
 				If $Restart = True Then ContinueLoop
-			CheckTombs()
-				If _Sleep($iDelayRunBot3) Then Return
-				If $Restart = True Then ContinueLoop
-			ReArm()
-				If _Sleep($iDelayRunBot3) Then Return
-				If $Restart = True Then ContinueLoop
-			ReplayShare($iShareAttackNow)
-				If _Sleep($iDelayRunBot3) Then Return
-				If $Restart = True Then ContinueLoop
-			ReportPushBullet()
-				If _Sleep($iDelayRunBot3) Then Return
-				If $Restart = True Then ContinueLoop
-			DonateCC()
-				If _Sleep($iDelayRunBot1) Then Return
-			    checkMainScreen(False)  ; required here due to many possible exits
-				If $Restart = True Then ContinueLoop
+			Next
 			Train()
 				If _Sleep($iDelayRunBot1) Then Return
 			    checkMainScreen(False)
 				If $Restart = True Then ContinueLoop
-			BoostBarracks()
-				If $Restart = True Then ContinueLoop
-			BoostSpellFactory()
-				If $Restart = True Then ContinueLoop
-			BoostDarkSpellFactory()
-				If $Restart = True Then ContinueLoop
-			BoostKing()
-				If $Restart = True Then ContinueLoop
-			BoostQueen()
-				If $Restart = True Then ContinueLoop
-			RequestCC()
-				If _Sleep($iDelayRunBot1) Then Return
-				checkMainScreen(False) ; required here due to many possible exits
-				If $Restart = True Then ContinueLoop
-			If $iUnbreakableMode >= 1 Then
-				If Unbreakable() = True Then ContinueLoop
-			Endif
 			Laboratory()
 				If _Sleep($iDelayRunBot3) Then Return
 				checkMainScreen(False)  ; required here due to many possible exits
@@ -188,6 +167,9 @@ Func runBot() ;Bot that runs everything in order
 			UpgradeWall()
 				If _Sleep($iDelayRunBot3) Then Return
 				If $Restart = True Then ContinueLoop
+			If $iUnbreakableMode >= 1 Then
+				If Unbreakable() = True Then ContinueLoop
+			Endif
 			Idle()
 				If _Sleep($iDelayRunBot3) Then Return
 				If $Restart = True Then ContinueLoop
@@ -229,6 +211,8 @@ Func runBot() ;Bot that runs everything in order
 EndFunc   ;==>runBot
 
 Func Idle() ;Sequence that runs until Full Army
+	Static Local $IdleFunctions[5][2] = [ _   ; Array with list of functions to be run during attack cycle, used to randomize order (anti-bot)
+			["IdleCollect", ""], ["IdleDonateCC", ""], ["ReplayShare", "$iShareAttackNow"], ["IdleTrain", ""], ["IdleDropTrophy", ""]]
 	Local $TimeIdle = 0 ;In Seconds
 	If $debugSetlog = 1 Then SetLog("Func Idle ", $COLOR_PURPLE)
 	If $iTrophyCurrent >= ($itxtMaxTrophy + 100) And $CommandStop = -1 Then DropTrophy()
@@ -237,63 +221,19 @@ Func Idle() ;Sequence that runs until Full Army
 		If _Sleep($iDelayIdle1) Then Return
 		If $CommandStop = -1 Then SetLog("====== Waiting for full army ======", $COLOR_GREEN)
 		Local $hTimer = TimerInit()
-		Local $iReHere = 0
-		While $iReHere < 7
-			$iReHere += 1
-			DonateCC(True)
-			If _Sleep($iDelayIdle2) Then ExitLoop
-			If $Restart = True Then ExitLoop
-		WEnd
-		If _Sleep($iDelayIdle1) Then ExitLoop
-		checkMainScreen(False) ; required here due to many possible exits
-		If ($CommandStop = 3 Or $CommandStop = 0) Then
-			CheckOverviewFullArmy(True)
-			If Not($FullArmy) And $bTrainEnabled = True Then
-				SetLog("Army Camp and Barracks are not full, Training Continues...", $COLOR_ORANGE)
-				$CommandStop = 0
+		_ArrayShuffle($idleFunctions) ; randomize order of the functions for antibot detection.
+		For $j = 0 To UBound($IdleFunctions) - 1
+			Setlog($IdleFunctions[$j][0] & "(" & $IdleFunctions[$j][1] & ")", $COLOR_PURPLE)
+			If $IdleFunctions[$j][1] = "" Then ;check if function needs parameters passed
+				Call($IdleFunctions[$j][0]) ; no parameters
+			Else
+				Call($IdleFunctions[$j][0], $IdleFunctions[$j][1]) ; yes parameter
 			EndIf
-		EndIf
-		ReplayShare($iShareAttackNow)
-		If _Sleep($iDelayIdle1) Then Return
-		If $Restart = True Then ExitLoop
-		If $iCollectCounter > $COLLECTATCOUNT Then ; This is prevent from collecting all the time which isn't needed anyway
-			Collect()
+			If @error = 0xDEAD And @extended = 0xBEEF Then Setlog("Function does not exist", $COLOR_RED)
 			If _Sleep($iDelayIdle1) Then Return
-			DonateCC()
-			If $Restart = True Then ExitLoop
-			If _Sleep($iDelayIdle1) Or $RunState = False Then ExitLoop
-			$iCollectCounter = 0
-		EndIf
-		$iCollectCounter = $iCollectCounter + 1
-		if $CommandStop = -1 Then
-			Train()
-			If $Restart = True Then ExitLoop
-			If _Sleep($iDelayIdle1) Then ExitLoop
-			checkMainScreen(False)
-		endif
-		If _Sleep($iDelayIdle1) Then Return
-		If $CommandStop = 0 And $bTrainEnabled = True Then
-			If Not($fullarmy) Then
-				Train()
-				If $Restart = True Then ExitLoop
-				If _Sleep($iDelayIdle1) Then ExitLoop
-				checkMainScreen(False)
-		    EndIf
-		    If $fullArmy Then
-				SetLog("Army Camp and Barracks are full, stop Training...", $COLOR_ORANGE)
-				$CommandStop = 3
-		    EndIf
-		EndIf
-		If _Sleep($iDelayIdle1) Then Return
-		If $CommandStop = -1 Then
-			DropTrophy()
 			If $Restart = True Then ExitLoop
 			If $fullArmy Then ExitLoop
-			If _Sleep($iDelayIdle1) Then ExitLoop
-			checkMainScreen(False)
-		EndIf
-		If _Sleep($iDelayIdle1) Then Return
-		If $Restart = True Then ExitLoop
+		Next
 		$TimeIdle += Round(TimerDiff($hTimer) / 1000, 2) ;In Seconds
 		SetLog("Time Idle: " & StringFormat("%02i", Floor(Floor($TimeIdle / 60) / 60)) & ":" & StringFormat("%02i", Floor(Mod(Floor($TimeIdle / 60), 60))) & ":" & StringFormat("%02i", Floor(Mod($TimeIdle, 60))))
 		If $OutOfGold = 1 Or $OutOfElixir = 1 Then Return
@@ -330,3 +270,74 @@ Func Attack() ;Selects which algorithm
 	SetLog(" ====== Start Attack ====== ", $COLOR_GREEN)
 	algorithm_AllTroops()
 EndFunc   ;==>Attack
+
+Func IdleDonateCC()
+	Local $iDonateAttempts = 0
+	Local $iMaxDonateAttempts = Int(Random(5, 15)) ; Randomize the number of loops donation is attempted for Anti-ban
+	While $iDonateAttempts < $iMaxDonateAttempts
+		$iDonateAttempts += 1
+		DonateCC(True)
+		If _Sleep(Random(($iDelayIdle2 / 3), ($iDelayIdle2 * 2))) Then ExitLoop ; Randomize the sleep time for Anti-ban between 0.5 & 3 seconds
+		If $Restart = True Then ExitLoop
+	WEnd
+	If _Sleep($iDelayIdle1) Then Return
+	checkMainScreen(False) ; required here due to many possible exits
+	If ($CommandStop = 3 Or $CommandStop = 0) Then ; if in halt mode, check camps to restart training
+		CheckOverviewFullArmy(True)
+		If Not ($fullArmy) And $bTrainEnabled = True Then
+			SetLog("Army Camp and Barracks are not full, Training Continues...", $COLOR_ORANGE)
+			$CommandStop = 0
+		EndIf
+	EndIf
+EndFunc   ;==>IdleDonateCC
+
+Func IdleCollect()
+	Static Local $iCollectCounter = 0  ; create persistant local varibles for cycle count
+	Local $MinCollectCycles = 3 ; Set min cycle count for random collection range
+	Local $MaxCollectCycles = 10 ; Set Max cycle count for random collection range
+	Static Local $CollectCount = Int(Random($MinCollectCycles, $MaxCollectCycles))
+	If $iCollectCounter > $CollectCount Then ; This is prevent from collecting all the time which isn't needed anyway
+		Collect()
+		If $Restart = True Then Return
+		RequestCC()
+		If $Restart = True Then Return
+		DonateCC()
+		If $Restart = True Then Return
+		If _Sleep($iDelayIdle1) Or $RunState = False Then Return
+		$iCollectCounter = -1
+		$CollectCount = Int(Random($MinCollectCycles, $MaxCollectCycles)) ; Randomize the cycle count to wait for reseource collection for anti-ban
+	EndIf
+	$iCollectCounter += 1
+EndFunc   ;==>IdleCollect
+
+Func IdleTrain()
+	If $CommandStop = -1 Then
+		Train()
+		If $Restart = True Then Return
+		If _Sleep($iDelayIdle1) Then Return
+		checkMainScreen(False)
+	EndIf
+	If _Sleep($iDelayIdle1) Then Return
+	If $CommandStop = 0 And $bTrainEnabled = True Then
+		If Not ($fullArmy) Then
+			Train()
+			If $Restart = True Then Return
+			If _Sleep($iDelayIdle1) Then Return
+			checkMainScreen(False)
+			If $fullArmy Then
+				SetLog("Army Camp and Barracks are full, stop Training...", $COLOR_ORANGE)
+				$CommandStop = 3
+			EndIf
+		EndIf
+	EndIf
+EndFunc   ;==>IdleTrain
+
+Func IdleDropTrophy()
+	If $CommandStop = -1 Then
+		DropTrophy()
+		If $Restart = True Then Return
+		If $fullArmy Then Return
+		If _Sleep($iDelayIdle1) Then Return
+		checkMainScreen(False)
+	EndIf
+EndFunc   ;==>IdleDropTrophy
