@@ -45,7 +45,7 @@ Func Collect()
 			$stext &= $ResourceLocations[$j] & "|"
 		Next
 		If $debugSetlog = 1 Then Setlog("After shuffle: " & $stext, $COLOR_PURPLE)
-		For $i = 1 To $ResourceLocations[0]
+		For $i = 1 To UBound($ResourceLocations) - 1
 			If $ResourceLocations[$i] <> "" Then
 				$pixel = StringSplit($ResourceLocations[$i], ";")
 				If isInsideDiamondXY($pixel[1], $pixel[2]) Then
