@@ -211,7 +211,7 @@ Func runBot() ;Bot that runs everything in order (randomization added to reduce 
 EndFunc   ;==>runBot
 
 Func Idle() ;Sequence that runs until Full Army
-	Static Local $IdleFunctions[5][2] = [ _   ; Array with list of functions to be run during attack cycle, used to randomize order (anti-bot)
+	Static Local $IdleFunctions[5][2] = [ _   ; Array with list of functions to be run during idle/wait cycle, used to randomize order (anti-bot)
 			["IdleCollect", ""], ["IdleDonateCC", ""], ["ReplayShare", "$iShareAttackNow"], ["IdleTrain", ""], ["IdleDropTrophy", ""]]
 	Local $TimeIdle = 0 ;In Seconds
 	If $debugSetlog = 1 Then SetLog("Func Idle ", $COLOR_PURPLE)
@@ -271,7 +271,7 @@ Func Attack() ;Selects which algorithm
 	algorithm_AllTroops()
 EndFunc   ;==>Attack
 
-Func IdleDonateCC()
+Func IdleDonateCC()  ; Executes DonateCC function random number of times with random wait between checks, used in idle loop.
 	Local $iDonateAttempts = 0
 	Local $iMaxDonateAttempts = Int(Random(5, 15)) ; Randomize the number of loops donation is attempted for Anti-ban
 	While $iDonateAttempts < $iMaxDonateAttempts
@@ -291,7 +291,7 @@ Func IdleDonateCC()
 	EndIf
 EndFunc   ;==>IdleDonateCC
 
-Func IdleCollect()
+Func IdleCollect()  ; Executes Collect (resources), RequestCC, and DonateCC after Random number of function calls by idle loop.
 	Static Local $iCollectCounter = 0  ; create persistant local varibles for cycle count
 	Local $MinCollectCycles = 3 ; Set min cycle count for random collection range
 	Local $MaxCollectCycles = 10 ; Set Max cycle count for random collection range
@@ -310,7 +310,7 @@ Func IdleCollect()
 	$iCollectCounter += 1
 EndFunc   ;==>IdleCollect
 
-Func IdleTrain()
+Func IdleTrain()  ; Executes training function while waiting for full army, called by idle loop.
 	If $CommandStop = -1 Then
 		Train()
 		If $Restart = True Then Return
@@ -332,7 +332,7 @@ Func IdleTrain()
 	EndIf
 EndFunc   ;==>IdleTrain
 
-Func IdleDropTrophy()
+Func IdleDropTrophy()  ;Executes DropTrophy function with error checking, called by idle loop.
 	If $CommandStop = -1 Then
 		DropTrophy()
 		If $Restart = True Then Return
