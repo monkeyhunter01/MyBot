@@ -417,7 +417,8 @@ Func DonateCC($Check = False)
 	EndIf
 
 	If _Sleep($iDelayDonateCC2) Then Return
-
+	checkMainScreen(False) ; check if errors during function
+	If _Sleep($iDelayDonateCC1) Then Return
 
 EndFunc   ;==>DonateCC
 

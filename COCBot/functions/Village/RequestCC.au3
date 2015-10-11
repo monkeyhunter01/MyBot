@@ -63,6 +63,9 @@ Func RequestCC()
 	If _Sleep($iDelayRequestCC1) Then Return
 	ClickP($aAway, 2, 0, "#0335")
 
+	If _Sleep(250) Then Return
+	checkMainScreen(False) ; check if errors during function
+
 EndFunc   ;==>RequestCC
 
 
