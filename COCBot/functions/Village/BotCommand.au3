@@ -30,6 +30,9 @@ Func BotCommand()
 			$Trophy = ""
 		EndIf
 
+		$bTrainEnabled = True ; Reset halt train flag if user changes value during stop
+		$bDonationEnabled = True  ; Reset halt donation flag if user changes value during stop
+
 		Switch $icmbBotCond
 			Case 0
 				If isGoldFull() And isElixirFull() And $TrophyMax Then $MeetCondStop = True
