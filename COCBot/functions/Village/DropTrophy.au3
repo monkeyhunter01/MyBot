@@ -6,7 +6,7 @@
 ; Parameters ....:
 ; Return values .: None
 ; Author ........: Code Monkey #666
-; Modified ......: KnowJack(Aug 2015)
+; Modified ......: KnowJack(Aug 2015), MonkeyHunter (10-2015)
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
@@ -65,6 +65,7 @@ Func DropTrophy()
 								Attack()
 								ReturnHome($TakeLootSnapShot)
 								$ReStart = True  ; Set restart flag after dead base attack to ensure troops are trained
+								$Is_ClientSyncError = False  ; reset OOS flag in case of previous uncleared OOS error
 								ExitLoop ; or Return, Will end function, no troops left to drop Trophies, will need to Train new Troops first
 							EndIf
 						EndIf
@@ -156,11 +157,14 @@ Func DropTrophy()
 
 					Else
 						SetLog("Trophy Drop Complete", $COLOR_BLUE)
-
 					EndIf
+
+					CheckBaseDuringDrop() ; Check request and donations during drop
+					If $Restart = True Then Return
+
 				WEnd
 			Else
-				Setlog("Drop Thropies: Army is < 70% capacity")
+				Setlog("Drop Trophies: Army is < 70% capacity")
 				Setlog("You selected Option Attack Dead Base if found..")
 			EndIf
 
@@ -270,6 +274,9 @@ Func DropTrophy()
 						If _Sleep($iDelayDropTrophy1) Then ExitLoop
 					EndIf
 
+					CheckBaseDuringDrop() ; Check request and donations during drop
+					If $Restart = True Then Return
+
 				Else
 					SetLog("Trophy Drop Complete", $COLOR_BLUE)
 				EndIf
@@ -290,3 +297,25 @@ Func SetTrophyLoss()
 	$iDroppedTrophyCount -= Number($sTrophyLoss)
 	UpdateStats()
 EndFunc   ;==>SetTrophyLoss
+
+Func CheckBaseDuringDrop()
+	; Check if Request clan castle is enabled in case of long trophy drop sequence
+	If $ichkRequest = 1 Then
+		RequestCC()
+		If _Sleep($iDelayRunBot1) Then Return
+		checkMainScreen(False) ; required here due to many possible exits
+		If $Restart = True Then Return
+	EndIf
+	;  Check if Donate clan castle is enabled in case of long trophy drop sequence
+	If $Donate = True Then
+		DonateCC()
+		If _Sleep($iDelayRunBot1) Then Return
+		checkMainScreen(False)  ; required here due to many possible function exits
+		If $Restart = True Then Return
+		CheckOverviewFullArmy(True)  ; Check if army needs to be trained due donations
+		If Not($FullArmy) And $bTrainEnabled = True Then
+			Train()
+			If $Restart = True Then Return
+		EndIf
+	EndIf
+EndFunc
