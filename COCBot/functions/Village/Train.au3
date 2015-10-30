@@ -431,7 +431,7 @@ Func Train()
 				Setlog("Switching to Halt Attack, Stay Online Mode...", $COLOR_RED)
 				$ichkBotStop = 1 ; set halt attack variable
 				$OldicmbBotCond = $icmbBotCond  ; Temp store user choice of halt condition
-				$icmbBotCond = 16 ; set stay online
+				$icmbBotCond = 17 ; set stay online
 				If CheckFullBarrack() Then $Restart = True ;If the army camp is full, use it to refill storages
 				Return ; We are out of Elixir stop training.
 			EndIf

@@ -163,6 +163,7 @@
 #include "functions\Village\GetTownHallLevel.au3"
 #include "functions\Village\isGoldFull.au3"
 #include "functions\Village\isElixirFull.au3"
+#include "functions\Village\isDarkElixirFull.au3"
 #include "functions\Village\LocateBarrack.au3"
 #include "functions\Village\LocateUpgrade.au3"
 #include "functions\Village\LocateClanCastle.au3"

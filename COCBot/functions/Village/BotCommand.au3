@@ -67,11 +67,17 @@ Func BotCommand()
 				EndIf
 				If Round(TimerDiff($sTimer)) > $TimeToStop Then $MeetCondStop = True
 			Case 14
-				$MeetCondStop = True
+				If isGoldFull() And isElixirFull() And isDarkElixirFull() Then
+					$MeetCondStop = True
+				Else
+					If $DebugSetlog = 1 Then Setlog("Halt Full Storages checked, not full - continue", $COLOR_BLUE)
+				EndIf
 			Case 15
 				$MeetCondStop = True
-				$bTrainEnabled = False
 			Case 16
+				$MeetCondStop = True
+				$bTrainEnabled = False
+			Case 17
 				$MeetCondStop = True
 				$bTrainEnabled = False
 				$bDonationEnabled = False

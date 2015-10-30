@@ -19,11 +19,11 @@
 #pragma compile(FileDescription, Clash of Clans Bot - A Free Clash of Clans bot - https://mybot.run)
 #pragma compile(ProductName, My Bot)
 
-#pragma compile(ProductVersion, 4.2.2.MH.v1)
-#pragma compile(FileVersion, 4.2.2.MH.v1)
+#pragma compile(ProductVersion, 4.2.2.MH.v1a)
+#pragma compile(FileVersion, 4.2.2.MH.v1a)
 #pragma compile(LegalCopyright, © https://mybot.run)
 
-$sBotVersion = "v4.2.2.MH.v1"
+$sBotVersion = "v4.2.2.MH.v1a"
 $sBotTitle = "My Bot " & $sBotVersion
 Global $sBotDll = @ScriptDir & "\MBRPlugin.dll"
 
@@ -179,7 +179,7 @@ Func runBot() ;Bot that runs everything in order (randomization added to reduce 
 					Setlog("Switching to Halt Attack, Stay Online/Collect mode ...", $COLOR_RED)
 					$ichkBotStop = 1  ; set halt attack variable
 					$OldicmbBotCond = $icmbBotCond  ; Store user choice for halt mode before change
-					$icmbBotCond = 16  ; set stay online/collect only mode
+					$icmbBotCond = 17  ; set stay online/collect only mode
 					$FirstStart = True  ; reset First time flag to ensure army balancing when returns to training
 					ContinueLoop
 				Endif
@@ -199,7 +199,7 @@ Func runBot() ;Bot that runs everything in order (randomization added to reduce 
 				Setlog("Switching to Halt Attack, Stay Online/Collect mode ...", $COLOR_RED)
 				$ichkBotStop = 1  ; set halt attack variable
 				$OldicmbBotCond = $icmbBotCond  ; Store user choice for halt mode before change
-				$icmbBotCond = 16  ; set stay online/collect only mode
+				$icmbBotCond = 17  ; set stay online/collect only mode
 				$FirstStart = True  ; reset First time flag to ensure army balancing when returns to training
 				$Is_ClientSyncError = False  ; reset fast restart flag to stop OOS mode and start collecting resources
 				ContinueLoop

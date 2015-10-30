@@ -54,6 +54,7 @@ Global $aSendRequestCCBtn[2] = [524, 245]               ; Green button Send in w
 Global $atxtRequestCCBtn[2]  = [430, 140]               ; textbox in window request CC
 Global $aIsGoldFull[4]       = [660,  33, 0xD4B100,  6] ; Main Screen Gold Resource bar is Full
 Global $aIsElixirFull[4]     = [660,  84, 0xAE1AB3,  6] ; Main Screen Elixir Resource bar is Full
+Global $aIsDarkElixirFull[4] = [709, 134, 0x1D0026, 10] ; Main Screen DE Resource bar is full
 Global $aConfirmCoCExit[2]   = [515, 410] 				  ; CoC Confirm Exit button (no color for button as it matches grass)
 ;Global $aKingHealth          = [ -1, 572, 0x4FD404,110] ; Attack Screen, Check King's Health, X coordinate is dynamic, not used from array
 ;Global $aQueenHealth         = [ -1, 573, 0x4FD404,110] ; Attack Screen, Check Queen's Health, X coordinate is dynamic, not used from array
