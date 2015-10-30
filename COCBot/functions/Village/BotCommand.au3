@@ -32,6 +32,7 @@ Func BotCommand()
 
 		$bTrainEnabled = True ; Reset halt train flag if user changes value during stop
 		$bDonationEnabled = True  ; Reset halt donation flag if user changes value during stop
+		$MeetCondStop = False  ; Reset Stop flag to allow stop & re-start action
 
 		Switch $icmbBotCond
 			Case 0
