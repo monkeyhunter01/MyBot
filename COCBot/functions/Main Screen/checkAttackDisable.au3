@@ -57,11 +57,27 @@ Func checkAttackDisable($iSource, $Result = "")
 			Return False
 	EndSwitch
 
-	$Restart = True ; Set flag to restart the process at the bot main code when it returns
+	If $DebugSetlog = 1 Then SetLog("Checking CC , Troops, & collectors before exit", $COLOR_PURPLE)
+	If $Donate = True Then  ;  Check if Donate clan castle is enabled before exit
+		DonateCC()
+		If _Sleep($iDelayRunBot1) Then Return
+		checkMainScreen(False)  ; required here due to many possible function exits
+	EndIf
+	If $ichkRequest = 1 Then ; Check if Request clan castle before exit
+		RequestCC()
+		If _Sleep($iDelayRunBot1) Then Return
+		checkMainScreen(False) ; required here due to many possible exits
+	EndIf
+	CheckOverviewFullArmy(True)  ; Check if army needs to be trained before exit
+	If Not($FullArmy) And $bTrainEnabled = True Then
+		Train()
+	EndIf
+	Collect()  ; empty collectors one last time before close CoC
+	If _Sleep($iDelayRunBot1) Then Return
 
-	; Find and wait for the confirmation of exit "okay" button
 	Local $i = 0 ; Reset Loop counter
-	While 1
+	$Restart = True ; Set flag to restart the process at the bot main code when it returns
+	While 1  	; Find and wait for the confirmation of exit "okay" button
 		ControlFocus($Title, "", "") ; grab window focus
 		PureClick(50, 700, 1, 0, "#0116") ; Hit BS Back button for the confirm exit dialog to appear
 		If _Sleep(1000) Then Return False
