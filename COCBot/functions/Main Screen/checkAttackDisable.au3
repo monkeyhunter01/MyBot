@@ -58,16 +58,12 @@ Func checkAttackDisable($iSource, $Result = "")
 	EndSwitch
 
 	If $DebugSetlog = 1 Then SetLog("Checking CC , Troops, & collectors before exit", $COLOR_PURPLE)
-	If $Donate = True Then  ;  Check if Donate clan castle is enabled before exit
-		DonateCC()
-		If _Sleep($iDelayRunBot1) Then Return
-		checkMainScreen(False)  ; required here due to many possible function exits
-	EndIf
-	If $ichkRequest = 1 Then ; Check if Request clan castle before exit
-		RequestCC()
-		If _Sleep($iDelayRunBot1) Then Return
-		checkMainScreen(False) ; required here due to many possible exits
-	EndIf
+	DonateCC()
+	If _Sleep($iDelayRunBot1) Then Return
+	checkMainScreen(False)  ; required here due to many possible function exits
+	RequestCC()
+	If _Sleep($iDelayRunBot1) Then Return
+	checkMainScreen(False) ; required here due to many possible exits
 	CheckOverviewFullArmy(True)  ; Check if army needs to be trained before exit
 	If Not($FullArmy) And $bTrainEnabled = True Then
 		Train()
