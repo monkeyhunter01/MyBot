@@ -299,23 +299,19 @@ Func SetTrophyLoss()
 EndFunc   ;==>SetTrophyLoss
 
 Func CheckBaseDuringDrop()
-	; Check if Request clan castle is enabled in case of long trophy drop sequence
-	If $ichkRequest = 1 Then
-		RequestCC()
-		If _Sleep($iDelayRunBot1) Then Return
-		checkMainScreen(False) ; required here due to many possible exits
+	RequestCC()  ; fill CC
+	If _Sleep($iDelayRunBot1) Then Return
+	checkMainScreen(False) ; required here due to many possible exits
+	If $Restart = True Then Return
+	DonateCC()  ; donate troops
+	If _Sleep($iDelayRunBot1) Then Return
+	checkMainScreen(False)  ; required here due to many possible function exits
+	If $Restart = True Then Return
+	CheckOverviewFullArmy(True)  ; Check if army needs to be trained due donations
+	If Not($FullArmy) And $bTrainEnabled = True Then
+		Train()
 		If $Restart = True Then Return
 	EndIf
-	;  Check if Donate clan castle is enabled in case of long trophy drop sequence
-	If $Donate = True Then
-		DonateCC()
-		If _Sleep($iDelayRunBot1) Then Return
-		checkMainScreen(False)  ; required here due to many possible function exits
-		If $Restart = True Then Return
-		CheckOverviewFullArmy(True)  ; Check if army needs to be trained due donations
-		If Not($FullArmy) And $bTrainEnabled = True Then
-			Train()
-			If $Restart = True Then Return
-		EndIf
-	EndIf
+	Collect()  ; Empty Collectors
+	If _Sleep($iDelayRunBot1) Then Return
 EndFunc
