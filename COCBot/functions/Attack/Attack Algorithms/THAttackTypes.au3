@@ -27,6 +27,9 @@ Func SwitchAttackTHType()
 		Case 4
 			AttackTHCustomized()
 	EndSwitch
+	While GoldElixirChange()  ; Wait for snipe troops finish getting loot before exit
+		If _Sleep(3000)
+	WEnd
 
 EndFunc   ;==>SwitchAttackTHType
 
