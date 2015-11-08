@@ -19,11 +19,12 @@
 #pragma compile(FileDescription, Clash of Clans Bot - A Free Clash of Clans bot - https://mybot.run)
 #pragma compile(ProductName, My Bot)
 
-#pragma compile(ProductVersion, 4.2.2.MH.v1a)
-#pragma compile(FileVersion, 4.2.2.MH.v1a)
+#pragma compile(ProductVersion, 4.2.3.MH.v1a)
+#pragma compile(FileVersion, 4.2.3.MH.v1a)
 #pragma compile(LegalCopyright, © https://mybot.run)
 
-$sBotVersion = "v4.2.2.MH.v1a"
+$sBotVersion = "v4.2.3.MH.v1a"
+
 $sBotTitle = "My Bot " & $sBotVersion
 Global $sBotDll = @ScriptDir & "\MBRPlugin.dll"
 
@@ -189,9 +190,9 @@ Func runBot() ;Bot that runs everything in order (randomization added to reduce 
 				;
 		Else ;When error occours directly goes to attack
 			SetLog("Restarted after Out of Sync Error: Attack Now", $COLOR_RED)
-			$iNbrOfOoS += 1
-			UpdateStats()
-			PushMsg("OutOfSync")
+;			$iNbrOfOoS += 1
+;			UpdateStats()
+;			PushMsg("OutOfSync")
 			checkMainScreen(False)
 			If $Restart = True Then ContinueLoop
 			AttackMain()
