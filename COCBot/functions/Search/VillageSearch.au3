@@ -338,5 +338,14 @@ Func IsWeakBase($pMode)
 	_WinAPI_DeleteObject($hBitmapFirst)
 	$hBitmapFirst = _CaptureRegion2()
 	Local $resultHere = DllCall($pFuncLib, "str", "CheckConditionForWeakBase", "ptr", $hBitmapFirst, "int", ($iCmbWeakMortar[$pMode] + 1), "int", ($iCmbWeakWizTower[$pMode] + 1), "int", 10)
-	Return $resultHere[0] = "Y"
+	If @error Then  ; detect if DLL error and return weakbase not found
+		SetLog("Weakbase search DLL error", $COLOR_RED)
+		Return False
+	EndIf
+	If $debugsetlog = 1 Then Setlog("Weakbase result= " &  $resultHere[0], $COLOR_PURPLE)  ;debug
+	If $resultHere[0] = "Y" Then
+		Return True
+	Else
+		Return False
+	EndIf
 EndFunc   ;==>IsWeakBase
