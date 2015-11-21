@@ -164,8 +164,8 @@ Global $iSearchCost, $iTrainCostElixir, $iTrainCostDElixir ; search and train tr
 Global $iNbrOfOoS ; number of Out of Sync occurred
 Global $iNbrOfTHSnipeFails, $iNbrOfTHSnipeSuccess ; number of fails and success while TH Sniping
 Global $iGoldFromMines, $iElixirFromCollectors, $iDElixirFromDrills ; number of resources gain by collecting mines, collectors, drills
-Global $iAttackedVillageCount[$iModeCount+2] ; number of attack villages for DB, LB, TB, TS
-Global $iTotalGoldGain[$iModeCount+2], $iTotalElixirGain[$iModeCount+2], $iTotalDarkGain[$iModeCount+2], $iTotalTrophyGain[$iModeCount+2] ; total resource gains for DB, LB, TB, TS
+Global $iAttackedVillageCount[$iModeCount+3] ; number of attack villages for DB, LB, TB, TS, DT
+Global $iTotalGoldGain[$iModeCount+3], $iTotalElixirGain[$iModeCount+3], $iTotalDarkGain[$iModeCount+3], $iTotalTrophyGain[$iModeCount+3] ; total resource gains for DB, LB, TB, TS, DT
 Global $iNbrOfDetectedMines[$iModeCount+2], $iNbrOfDetectedCollectors[$iModeCount+2], $iNbrOfDetectedDrills[$iModeCount+2] ; number of mines, collectors, drills detected for DB, LB, TB
 Global $lblAttacked[$iModeCount+2], $lblTotalGoldGain[$iModeCount+2], $lblTotalElixirGain[$iModeCount+2], $lblTotalDElixirGain[$iModeCount+2], $lblTotalTrophyGain[$iModeCount+2]
 Global $lblNbrOfDetectedMines[$iModeCount+2], $lblNbrOfDetectedCollectors[$iModeCount+2], $lblNbrOfDetectedDrills[$iModeCount+2]

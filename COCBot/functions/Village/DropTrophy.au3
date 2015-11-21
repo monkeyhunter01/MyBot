@@ -62,6 +62,7 @@ Func DropTrophy()
 							If checkDeadBase() Then
 								; _BlockInputEx(0, "", "", $HWnD) ; block all keyboard keys
 								SetLog(_PadStringCenter(" Dead Base Found!! ", 50, "~"), $COLOR_GREEN)
+								$iMatchMode = $DB  ; Set attack mode to Dead Base
 								Attack()
 								ReturnHome($TakeLootSnapShot)
 								$ReStart = True  ; Set restart flag after dead base attack to ensure troops are trained
@@ -288,6 +289,7 @@ EndFunc   ;==>DropTrophy
 
 Func SetTrophyLoss()
 	Local $sTrophyLoss
+	$iMatchMode = $DT  ; Set attack mode to Drop Trophy
 	If _ColorCheck(_GetPixelColor(30, 142, True), Hex(0x07010D, 6), 10) Then ; check if the village have a Dark Elixir Storage
 		$sTrophyLoss = getTrophyLossAttackScreen(48, 214)
 	Else
@@ -295,7 +297,7 @@ Func SetTrophyLoss()
 	EndIf
 	Setlog(" Trophy loss = " & $sTrophyLoss, $COLOR_PURPLE) ; record trophy loss
 	$iDroppedTrophyCount -= Number($sTrophyLoss)
-	UpdateStats()
+	; UpdateStats()
 EndFunc   ;==>SetTrophyLoss
 
 Func CheckBaseDuringDrop()
