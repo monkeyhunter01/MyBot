@@ -1,3 +1,17 @@
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _GetRedArea
+; Description ...:  See strategy below
+; Syntax ........: _GetRedArea()
+; Parameters ....:
+; Return values .: None
+; Author ........:
+; Modified ......:
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
+;                  MyBot is distributed under the terms of the GNU GPL
+; Related .......:
+; Link ..........: https://github.com/MyBotRun/MyBot/wiki
+; Example .......: No
+; ===============================================================================================================================
 ; Strategy :
 ; 			Search red area
 ;			Split the result in 4 sides (global var) : Top Left / Bottom Left / Top Right / Bottom Right
@@ -5,16 +19,25 @@
 ;			Get pixel next the "out zone" , indeed the red color is very different and more uncertain
 ;			Sort each sides
 ;			Add each sides in one array (not use, but it can help to get closer pixel of all the red area)
+
 Func _GetRedArea()
 	$nameFunc = "[_GetRedArea] "
 	debugRedArea($nameFunc & " IN")
-
 
 	Local $colorVariation = 40
 	Local $xSkip = 1
 	Local $ySkip = 5
 
-	Local $result = DllCall($pFuncLib, "str", "getRedArea", "ptr", $hBitmapFirst, "int", $xSkip, "int", $ySkip, "int", $colorVariation)
+	If $iMatchMode = $LB And $iChkDeploySettings[$LB] = 4 Then ; Used for DES Side Attack (need to know the side the DES is on)
+		Local $result = DllCall($hFuncLib, "str", "getRedAreaSideBuilding", "ptr", $hBitmapFirst, "int", $xSkip, "int", $ySkip, "int", $colorVariation, "int", $eSideBuildingDES)
+		If $debugSetlog Then Setlog("Debug: Redline with DES Side chosen")
+	ElseIf $iMatchMode = $LB And $iChkDeploySettings[$LB] = 5 Then ; Used for TH Side Attack (need to know the side the TH is on)
+		Local $result = DllCall($hFuncLib, "str", "getRedAreaSideBuilding", "ptr", $hBitmapFirst, "int", $xSkip, "int", $ySkip, "int", $colorVariation, "int", $eSideBuildingTH)
+		If $debugSetlog Then Setlog("Debug: Redline with TH Side chosen")
+	Else ; Normal getRedArea
+		Local $result = DllCall($hFuncLib, "str", "getRedArea", "ptr", $hBitmapFirst, "int", $xSkip, "int", $ySkip, "int", $colorVariation)
+		If $debugSetlog Then Setlog("Debug: Redline chosen")
+	EndIf
 	Local $listPixelBySide = StringSplit($result[0], "#")
 	$PixelTopLeft = GetPixelSide($listPixelBySide, 1)
 	$PixelBottomLeft = GetPixelSide($listPixelBySide, 2)

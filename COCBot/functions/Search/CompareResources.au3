@@ -6,7 +6,7 @@
 ; Return values .: True if compaired resources match the search conditions, False if not
 ; Author ........: (2014)
 ; Modified ......: AtoZ, Hervidero (2015), kaganus (June 2015, August 2015)
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......: VillageSearch, GetResources
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -14,7 +14,6 @@
 ; ===============================================================================================================================
 
 Func CompareResources($pMode) ;Compares resources and returns true if conditions meet, otherwise returns false
-
 	If $iChkSearchReduction = 1 Then
 		If ($iChkEnableAfter[$pMode] = 0 And $SearchCount <> 0 And Mod($SearchCount, $ReduceCount) = 0) Or ($iChkEnableAfter[$pMode] = 1 And $SearchCount - $iEnableAfterCount[$pMode] > 0 And Mod($SearchCount - $iEnableAfterCount[$pMode], $ReduceCount) = 0) Then
 			If $iAimGold[$pMode] - $ReduceGold >= 0 Then $iAimGold[$pMode] -= $ReduceGold
@@ -34,7 +33,7 @@ Func CompareResources($pMode) ;Compares resources and returns true if conditions
 	Local $G = (Number($searchGold) >= Number($iAimGold[$pMode])), $E = (Number($searchElixir) >= Number($iAimElixir[$pMode])), $D = (Number($searchDark) >= Number($iAimDark[$pMode])), $T = (Number($searchTrophy) >= Number($iAimTrophy[$pMode])), $GPE = ((Number($searchGold) + Number($searchElixir)) >= Number($iAimGoldPlusElixir[$pMode]))
 	Local $THL = -1, $THLO = -1
 
-	For $i = 0 To 4
+	For $i = 0 To 5 ;add th11
 		If $searchTH = $THText[$i] Then $THL = $i
 	Next
 
@@ -126,5 +125,6 @@ Func CompareResources($pMode) ;Compares resources and returns true if conditions
 			;SetLog("[G + E]:" & StringFormat("%7s", $searchGold + $searchElixir), $COLOR_GREEN, "Lucida Console", 7.5)
 		EndIf
 	EndIf
+
 	Return True
 EndFunc   ;==>CompareResources

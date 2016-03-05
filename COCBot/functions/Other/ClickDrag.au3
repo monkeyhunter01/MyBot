@@ -18,13 +18,18 @@
 ;							 5 = Failed to send a MouseMove command.
 ;							 7 = Failed to send a MouseUp command.
 ; Author(s):		KillerDeluxe
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
+;                  MyBot is distributed under the terms of the GNU GPL
+; Related .......:
+; Link ..........: https://github.com/MyBotRun/MyBot/wiki
+; Example .......: No
 ;=================================================================================================
 Func _PostMessage_ClickDrag($X1, $Y1, $X2, $Y2, $Button = "left", $Delay = 50)
-	If Not IsHWnd($Title) And $Title <> "" Then
-		$Title = WinGetHandle($Title)
+	If Not IsHWnd($HWnD) Then
+		$HWnD = WinGetAndroidHandle()
 	EndIf
 
-	If Not IsHWnd($Title) Then
+	If Not IsHWnd($HWnD) Then
 		Return SetError(1, "", False)
 	EndIf
 
@@ -51,23 +56,40 @@ Func _PostMessage_ClickDrag($X1, $Y1, $X2, $Y2, $Button = "left", $Delay = 50)
 	$User32 = DllOpen("User32.dll")
 	If @error Then Return SetError(4, "", False)
 
-	DllCall($User32, "bool", "PostMessage", "hwnd", $Title, "int", $Button, "int", "0", "long", _MakeLong($X1, $Y1))
+	MoveMouseOutBS()
+
+	DllCall($User32, "bool", "PostMessage", "hwnd", $HWnD, "int", $Button, "int", "0", "long", _MakeLong($X1, $Y1))
 	If @error Then Return SetError(5, "", False)
 
-	Sleep($Delay / 2)
+	If _Sleep($Delay / 2) Then Return SetError(-1, "", False)
 
-	DllCall($User32, "bool", "PostMessage", "hwnd", $Title, "int", $WM_MOUSEMOVE, "int", $Pressed, "long", _MakeLong($X2, $Y2))
+	DllCall($User32, "bool", "PostMessage", "hwnd", $HWnD, "int", $WM_MOUSEMOVE, "int", $Pressed, "long", _MakeLong($X2, $Y2))
 	If @error Then Return SetError(6, "", False)
 
-	Sleep($Delay / 2)
+	If _Sleep($Delay / 2) Then Return SetError(-1, "", False)
 
-	DllCall($User32, "bool", "PostMessage", "hwnd", $Title, "int", $Button + 1, "int", "0", "long", _MakeLong($X2, $Y2))
+	DllCall($User32, "bool", "PostMessage", "hwnd", $HWnD, "int", $Button + 1, "int", "0", "long", _MakeLong($X2, $Y2))
 	If @error Then Return SetError(7, "", False)
 
 	DllClose($User32)
 	Return SetError(0, 0, True)
- EndFunc
+EndFunc
 
- Func _MakeLong($LowWORD, $HiWORD)
+Func _MakeLong($LowWORD, $HiWORD)
     Return BitOR($HiWORD * 0x10000, BitAND($LowWORD, 0xFFFF))
 EndFunc
+
+Func ClickDrag($X1, $Y1, $X2, $Y2, $Delay = 50)
+   Local $error = 0
+   If $AndroidAdbInput = True Then
+	  AndroidSwipe($X1, $Y1, $X2, $Y2, $RunState)
+	  If _Sleep($Delay / 5) Then Return SetError(-1, "", False)
+	  $error = @error
+   EndIf
+   If $AndroidAdbInput = False Or $error <> 0 Then
+	  Return _PostMessage_ClickDrag($X1, $Y1, $X2, $Y2, "left", $Delay)
+   EndIf
+   Return SetError(0, 0, True)
+EndFunc
+
+

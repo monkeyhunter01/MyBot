@@ -3,7 +3,7 @@
 ; Description ...: Pixel and Locate Image functions
 ; Author ........: HungLe (april-2015)
 ; Modified ......:
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -36,8 +36,15 @@ EndFunc   ;==>GetListPixel
 
 
 Func GetLocationItem($functionName)
-	$resultHere = DllCall($pFuncLib, "str", $functionName, "ptr", $hBitmapFirst)
+	If $debugSetLog = 1 or $debugBuildingPos = 1 Then
+		Local $hTimer = TimerInit()
+		Setlog("GetLocationItem(" & $functionName & ")", $COLOR_PURPLE)
+	EndIf
+	$resultHere = DllCall($hFuncLib, "str", $functionName, "ptr", $hBitmapFirst)
 	If UBound($resultHere) > 0 Then
+		If $debugBuildingPos = 1 Then Setlog("#*# " & $functionName & ": " & $resultHere[0] & "calc in " & Round(TimerDiff($hTimer) / 1000, 2) & " seconds ", $COLOR_TEAL)
 		Return GetListPixel($resultHere[0])
+	Else
+		If $debugBuildingPos = 1 Then Setlog("#*# " & $functionName & ": NONE calc in " & Round(TimerDiff($hTimer) / 1000, 2) & " seconds ", $COLOR_TEAL)
 	EndIf
 EndFunc   ;==>GetLocationItem

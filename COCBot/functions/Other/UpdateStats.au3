@@ -6,7 +6,7 @@
 ; Return values .: None
 ; Author ........: kaganus (2015-jun-20)
 ; Modified ......:
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -26,9 +26,9 @@ Global $iOldSearchCost, $iOldTrainCostElixir, $iOldTrainCostDElixir ; search and
 Global $iOldNbrOfOoS ; number of Out of Sync occurred
 Global $iOldNbrOfTHSnipeFails, $iOldNbrOfTHSnipeSuccess ; number of fails and success while TH Sniping
 Global $iOldGoldFromMines, $iOldElixirFromCollectors, $iOldDElixirFromDrills ; number of resources gain by collecting mines, collectors, drills
-Global $iOldAttackedCount, $iOldAttackedVillageCount[$iModeCount+2] ; number of attack villages for DB, LB, TB, TS
-Global $iOldTotalGoldGain[$iModeCount+2], $iOldTotalElixirGain[$iModeCount+2], $iOldTotalDarkGain[$iModeCount+2], $iOldTotalTrophyGain[$iModeCount+2] ; total resource gains for DB, LB, TB, TS
-Global $iOldNbrOfDetectedMines[$iModeCount+2], $iOldNbrOfDetectedCollectors[$iModeCount+2], $iOldNbrOfDetectedDrills[$iModeCount+2] ; number of mines, collectors, drills detected for DB, LB, TB
+Global $iOldAttackedCount, $iOldAttackedVillageCount[$iModeCount+1] ; number of attack villages for DB, LB, TB, TS
+Global $iOldTotalGoldGain[$iModeCount+1], $iOldTotalElixirGain[$iModeCount+1], $iOldTotalDarkGain[$iModeCount+1], $iOldTotalTrophyGain[$iModeCount+1] ; total resource gains for DB, LB, TB, TS
+Global $iOldNbrOfDetectedMines[$iModeCount+1], $iOldNbrOfDetectedCollectors[$iModeCount+1], $iOldNbrOfDetectedDrills[$iModeCount+1] ; number of mines, collectors, drills detected for DB, LB, TB
 
 Func UpdateStats()
 	If $FirstRun = 1 Then
@@ -101,6 +101,10 @@ Func UpdateStats()
 		GUICtrlSetData($lblHourlyStatsElixir, "")
 		GUICtrlSetData($lblHourlyStatsDark, "")
 		GUICtrlSetData($lblHourlyStatsTrophy, "")
+		GUICtrlSetData($lblResultGoldHourNow, "")  ;GUI BOTTOM
+		GUICtrlSetData($lblResultElixirHourNow, "");GUI BOTTOM
+		GUICtrlSetData($lblResultDEHourNow, "")    ;GUI BOTTOM
+
 	EndIf
 
 	If $iOldFreeBuilderCount <> $iFreeBuilderCount Or $iOldTotalBuilderCount <> $iTotalBuilderCount Then
@@ -216,6 +220,7 @@ Func UpdateStats()
 
 	If $iOldSkippedVillageCount <> $iSkippedVillageCount Then
 		GUICtrlSetData($lblresultvillagesskipped, _NumberFormat($iSkippedVillageCount, True))
+		GUICtrlSetData($lblResultSkippedHourNow, _NumberFormat($iSkippedVillageCount, True))
 		$iOldSkippedVillageCount = $iSkippedVillageCount
 	EndIf
 
@@ -296,7 +301,7 @@ Func UpdateStats()
 
 	Local $iAttackedCount = 0
 
-	For $i = 0 To $iModeCount + 1
+	For $i = 0 To $iModeCount
 
 		If $iOldAttackedVillageCount[$i] <> $iAttackedVillageCount[$i] Then
 			GUICtrlSetData($lblAttacked[$i], _NumberFormat($iAttackedVillageCount[$i], True))
@@ -328,10 +333,11 @@ Func UpdateStats()
 
 	If $iOldAttackedCount <> $iAttackedCount Then
 		GUICtrlSetData($lblresultvillagesattacked, _NumberFormat($iAttackedCount, True))
+		GUICtrlSetData($lblResultAttackedHourNow, _NumberFormat($iAttackedCount, True))
 		$iOldAttackedCount = $iAttackedCount
 	EndIf
 
-	For $i = 0 To $iModeCount + 1
+	For $i = 0 To $iModeCount
 
 		If $i = $TS Then ContinueLoop
 
@@ -359,6 +365,13 @@ Func UpdateStats()
 			GUICtrlSetData($lblHourlyStatsDark, _NumberFormat(Round($iDarkTotal / (Int(TimerDiff($sTimer) + $iTimePassed)) * 3600 * 1000)) & " / h")
 		EndIf
 		GUICtrlSetData($lblHourlyStatsTrophy, _NumberFormat(Round($iTrophyTotal / (Int(TimerDiff($sTimer) + $iTimePassed)) * 3600 * 1000)) & " / h")
+
+		GUICtrlSetData($lblResultGoldHourNow, _NumberFormat(Round($iGoldTotal / (Int(TimerDiff($sTimer) + $iTimePassed)) * 3600)) & "K / h")              ;GUI BOTTOM
+		GUICtrlSetData($lblResultElixirHourNow, _NumberFormat(Round($iElixirTotal / (Int(TimerDiff($sTimer) + $iTimePassed)) * 3600)) & "K / h")           ;GUI BOTTOM
+		If $iDarkStart <> "" Then
+			GUICtrlSetData($lblResultDEHourNow, _NumberFormat(Round($iDarkTotal / (Int(TimerDiff($sTimer) + $iTimePassed)) * 3600 * 1000)) & " / h")      ;GUI BOTTOM
+		EndIf
+
 	EndIf
 
 	If $ResetStats = 1 Then
@@ -373,6 +386,7 @@ Func ResetStats()
 	$iTimePassed = 0
 	$sTimer = TimerInit()
 	GUICtrlSetData($lblresultruntime, "00:00:00")
+	GUICtrlSetData($lblResultRuntimeNow, "00:00:00")
 	GUICtrlSetState($lblLastAttackTemp, $GUI_SHOW)
 	GUICtrlSetState($lblLastAttackBonusTemp, $GUI_SHOW)
 	GUICtrlSetState($lblTotalLootTemp, $GUI_SHOW)
@@ -413,7 +427,7 @@ Func ResetStats()
 	$iGoldFromMines = 0
 	$iElixirFromCollectors = 0
 	$iDElixirFromDrills = 0
-	For $i = 0 To $iModeCount + 1
+	For $i = 0 To $iModeCount
 		$iAttackedVillageCount[$i] = 0
 		$iTotalGoldGain[$i] = 0
 		$iTotalElixirGain[$i] = 0

@@ -8,7 +8,7 @@
 ; Author ........: Hervidero (2015-feb-10)
 ; Modified ......: Safar46 (2015), Hervidero (2015, KnowJack - added statistics bypasss (June-2015) , ProMac (2015)
 ;                  Sardo 2015-08
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -39,7 +39,7 @@ Func VillageReport($bBypass = False, $bSuppressLog = False)
 	If _ColorCheck(_GetPixelColor(812, 141, True), Hex(0x000000, 6), 10) Then ; check if the village have a Dark Elixir Storage
 		$iGoldCurrent = getResourcesMainScreen(705, 23)
 		$iElixirCurrent = getResourcesMainScreen(705, 74)
-		$iDarkCurrent =  getResourcesMainScreen(731, 123)
+		$iDarkCurrent =  getResourcesMainScreen(728, 123)
 		$iGemAmount = getResourcesMainScreen(740, 171)
 		If Not $bSuppressLog Then SetLog(" [G]: " & _NumberFormat($iGoldCurrent) & " [E]: " &  _NumberFormat($iElixirCurrent) & " [D]: " &  _NumberFormat($iDarkCurrent) & " [GEM]: " &  _NumberFormat($iGemAmount), $COLOR_GREEN)
 	Else

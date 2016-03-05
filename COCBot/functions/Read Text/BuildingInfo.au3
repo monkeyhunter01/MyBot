@@ -1,3 +1,18 @@
+; #FUNCTION# ====================================================================================================================
+; Name ..........: BuildingInfo
+; Description ...:
+; Syntax ........: BuildingInfo($iXstart, $iYstart)
+; Parameters ....: $iXstart             - an integer value.
+;                  $iYstart             - an integer value.
+; Return values .: None
+; Author ........: KnowJack
+; Modified ......:
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
+;                  MyBot is distributed under the terms of the GNU GPL
+; Related .......:
+; Link ..........: https://github.com/MyBotRun/MyBot/wiki
+; Example .......: No
+; ===============================================================================================================================
 Func BuildingInfo($iXstart, $iYstart)
 
 	Local $sBldgText, $sBldgLevel, $aString
@@ -9,6 +24,7 @@ Func BuildingInfo($iXstart, $iYstart)
 		$sBldgText = getNameBuilding($iXstart, $iYstart) ; Get Unit name and level with OCR
 	EndIf
 	If $debugSetlog = 1 Then Setlog("Read building Name String = " & $sBldgText, $COLOR_PURPLE) ;debug
+	If StringInStr($sBldgText, "Cart") Then $sBldgText &= " (FakeLevel 100)"
 	If StringInStr($sBldgText, "Tree") Then $sBldgText &= " (FakeLevel 99)"
 	If StringInStr($sBldgText, "Mush") Then $sBldgText &= " (FakeLevel 98)"
 	If StringInStr($sBldgText, "Trunk") Then $sBldgText &= " (FakeLevel 97)"

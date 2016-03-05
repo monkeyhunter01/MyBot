@@ -1,30 +1,50 @@
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: DropOnEdge
+; Description ...:
+; Syntax ........: DropOnEdge($troop, $edge, $number[, $slotsPerEdge = 0[, $edge2 = -1[, $x = -1]]])
+; Parameters ....: $troop               - a dll struct value.
+;                  $edge                - an unknown value.
+;                  $number              - a general number value.
+;                  $slotsPerEdge        - [optional] a string value. Default is 0.
+;                  $edge2               - [optional] an unknown value. Default is -1.
+;                  $x                   - [optional] an unknown value. Default is -1.
+; Return values .: None
+; Author ........: Your Name
+; Modified ......:
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
+;                  MyBot is distributed under the terms of the GNU GPL
+; Related .......:
+; Link ..........: https://github.com/MyBotRun/MyBot/wiki
+; Example .......: No
+; ===============================================================================================================================
+
 Func DropOnEdge($troop, $edge, $number, $slotsPerEdge = 0, $edge2 = -1, $x = -1)
 
 	If isProblemAffect(True) Then Return
 	If $number = 0 Then Return
-	If _Sleep($iDelayDropOnEdge1) Then Return
+	If _SleepAttack($iDelayDropOnEdge1) Then Return
 	SelectDropTroop($troop) ;Select Troop
-	If _Sleep($iDelayDropOnEdge2) Then Return
+	If _SleepAttack($iDelayDropOnEdge2) Then Return
 	If $slotsPerEdge = 0 Or $number < $slotsPerEdge Then $slotsPerEdge = $number
 	If $number = 1 Or $slotsPerEdge = 1 Then ; Drop on a single point per edge => on the middle
 		Click($edge[2][0], $edge[2][1], $number, $iDelayDropOnEdge1,"#0102")
 		If $edge2 <> -1 Then Click($edge2[2][0], $edge2[2][1], $number, $iDelayDropOnEdge1,"#0103")
-		If _Sleep($iDelayDropOnEdge3) Then Return
+		If _SleepAttack($iDelayDropOnEdge3) Then Return
 	ElseIf $slotsPerEdge = 2 Then ; Drop on 2 points per edge
 		Local $half = Ceiling($number / 2)
 		Click($edge[1][0], $edge[1][1], $half,0,"#0104")
 		If $edge2 <> -1 Then
-			If _Sleep(SetSleep(0)) Then Return
+			If _SleepAttack(SetSleep(0)) Then Return
 			Click($edge2[1][0], $edge2[1][1], $half,0,"#0105")
 		EndIf
-		If _Sleep(SetSleep(0)) Then Return
+		If _SleepAttack(SetSleep(0)) Then Return
 		Click($edge[3][0], $edge[3][1], $number - $half,0,"#0106")
 		If $edge2 <> -1 Then
-			If _Sleep(SetSleep(0)) Then Return
+			If _SleepAttack(SetSleep(0)) Then Return
 			Click($edge2[3][0], $edge2[3][1], $number - $half,0,"#0107")
 		EndIf
-		If _Sleep(SetSleep(0)) Then Return
+		If _SleepAttack(SetSleep(0)) Then Return
 	Else
 		Local $minX = $edge[0][0]
 		Local $maxX = $edge[4][0]
@@ -46,14 +66,14 @@ Func DropOnEdge($troop, $edge, $number, $slotsPerEdge = 0, $edge2 = -1, $x = -1)
 				Local $posX2 = Round($maxX2 - (($maxX2 - $minX2) * $i) / ($slotsPerEdge - 1))
 				Local $posY2 = Round($maxY2 - (($maxY2 - $minY2) * $i) / ($slotsPerEdge - 1))
 				;If $x = 0 Then
-				;  If _Sleep(SetSleep(0)) Then Return ; add delay for first wave attack to prevent skip dropping troops, must add for 4 sides attack
+				;  If _SleepAttack(SetSleep(0)) Then Return ; add delay for first wave attack to prevent skip dropping troops, must add for 4 sides attack
 				;EndIf
 				Click($posX2, $posY2, $nbtroopPerSlot,0,"#0109")
 				$nbTroopsLeft -= $nbtroopPerSlot
 			Else
 				$nbTroopsLeft -= $nbtroopPerSlot
 			EndIf
-			If _Sleep(SetSleep(0)) Then Return
+			If _SleepAttack(SetSleep(0)) Then Return
 		Next
 	EndIf
 EndFunc   ;==>DropOnEdge

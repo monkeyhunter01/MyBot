@@ -6,7 +6,7 @@
 ; Return values .: None
 ; Author ........: Sardo (2015-06)
 ; Modified ......: Hervidero, ProMac (2015-10)
-; Remarks .......: This file is part of MyBot Copyright 2015
+; Remarks .......: This file is part of MyBot Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -14,9 +14,9 @@
 ; ===============================================================================================================================
 
 Func MakeScreenshot($TargetDir, $type = "jpg")
-
-	If IsArray(ControlGetPos($Title, "_ctl.Window", "[CLASS:BlueStacksApp; INSTANCE:1]")) Then
-		_CaptureRegionScreenshot(0, 0, 860, 675)
+    WinGetAndroidHandle()
+	If IsArray(ControlGetPos($Title, $AppPaneName, $AppClassInstance)) Then
+		_CaptureRegionScreenshot(0, 0, $DEFAULT_WIDTH, $DEFAULT_HEIGHT - 45)
 		Local $hGraphic = _GDIPlus_ImageGetGraphicsContext($hBitmapScreenshot) ; Get graphics content from bitmap image
 		Local $hBrush = _GDIPlus_BrushCreateSolid(0xFF000029) ;create a brush AARRGGBB (using 0x000029 = Dark Blue)
 		If $ichkScreenshotHideName = 1 Then

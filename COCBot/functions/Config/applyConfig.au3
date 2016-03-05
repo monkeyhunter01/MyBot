@@ -2,11 +2,11 @@
 ; Name ..........: applyConfig.au3
 ; Description ...: Applies all of the  variable to the GUI
 ; Syntax ........: applyConfig()
-; Parameters ....: NA
+; Parameters ....: $bRedrawAtExit = True, redraws bot window after config was applied
 ; Return values .: NA
 ; Author ........:
 ; Modified ......:
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -14,16 +14,22 @@
 ; ===============================================================================================================================
 
 
-Func applyConfig() ;Applies the data from config to the controls in GUI
-	;General Settings--------------------------------------------------------------------------
-	If $frmBotPosX <> -32000 Then WinMove($sBotTitle, "", $frmBotPosX, $frmBotPosY)
+Func applyConfig($bRedrawAtExit = True) ;Applies the data from config to the controls in GUI
 
+	;General Settings--------------------------------------------------------------------------
+	If $frmBotPosX <> -32000 Then WinMove2($sBotTitle, "", $frmBotPosX, $frmBotPosY)
+
+	; Move with redraw disabled causes ghost window in VMWare, so move first then disable redraw
+	SetRedrawBotWindow(False)
+
+#cs Not needed with new profile system
 	If $iVillageName = "" Then
 		GUICtrlSetData($txtVillageName, "MyVillage")
 	Else
 		GUICtrlSetData($txtVillageName, $iVillageName)
 	EndIf
 	txtVillageName()
+#ce
 
 	_GUICtrlComboBox_SetCurSel($cmbLog, $iCmbLog)
 	cmbLogImpl(True)
@@ -47,6 +53,8 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	Else
 		GUICtrlSetState($chkBotStop, $GUI_UNCHECKED)
 	EndIf
+	chkBotStop()
+
 	_GUICtrlComboBox_SetCurSel($cmbBotCommand, $icmbBotCommand)
 	_GUICtrlComboBox_SetCurSel($cmbBotCond, $icmbBotCond)
 	_GUICtrlComboBox_SetCurSel($cmbHoursStop, $icmbHoursStop)
@@ -210,6 +218,16 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	GUICtrlSetData($txtSearchReduceDark, $ReduceDark)
 	GUICtrlSetData($txtSearchReduceTrophy, $ReduceTrophy)
 
+	If $iChkRestartSearchLimit = 1 Then
+		GUICtrlSetState($ChkRestartSearchLimit, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($ChkRestartSearchLimit, $GUI_UNCHECKED)
+	EndIf
+	GUICtrlSetData($txtRestartSearchlimit, $iRestartSearchlimit)
+	ChkRestartSearchLimit()
+
+
+
 	;Attack Settings-------------------------------------------------------------------------
 	_GUICtrlComboBox_SetCurSel($cmbDBDeploy, $iChkDeploySettings[$DB])
 	_GUICtrlComboBox_SetCurSel($cmbDBUnitDelay, $iCmbUnitDelay[$DB])
@@ -288,26 +306,48 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		GUICtrlSetState($chkABAttackNearDarkElixirDrill, $GUI_UNCHECKED)
 	EndIf
 
-	If $KingAttack[$DB] = 1 Then
+	If BitAND($iHeroAttack[$DB], $HERO_KING) = $HERO_KING Then
 		GUICtrlSetState($chkDBKingAttack, $GUI_CHECKED)
 	Else
 		GUICtrlSetState($chkDBKingAttack, $GUI_UNCHECKED)
 	EndIf
-	If $KingAttack[$LB] = 1 Then
+	If BitAND($iHeroAttack[$LB], $HERO_KING) = $HERO_KING Then
 		GUICtrlSetState($chkABKingAttack, $GUI_CHECKED)
 	Else
 		GUICtrlSetState($chkABKingAttack, $GUI_UNCHECKED)
 	EndIf
 
-	If $QueenAttack[$DB] = 1 Then
+	If BitAND($iHeroWait[$DB], $HERO_KING) = $HERO_KING Then
+		GUICtrlSetState($chkDBKingWait, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBKingWait, $GUI_UNCHECKED)
+	EndIf
+	If BitAND($iHeroWait[$LB], $HERO_KING) = $HERO_KING Then
+		GUICtrlSetState($chkABKingWait, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABKingWait, $GUI_UNCHECKED)
+	EndIf
+
+	If BitAND($iHeroAttack[$DB], $HERO_QUEEN) = $HERO_QUEEN Then
 		GUICtrlSetState($chkDBQueenAttack, $GUI_CHECKED)
 	Else
 		GUICtrlSetState($chkDBQueenAttack, $GUI_UNCHECKED)
 	EndIf
-	If $QueenAttack[$LB] = 1 Then
+	If BitAND($iHeroAttack[$LB], $HERO_QUEEN) = $HERO_QUEEN Then
 		GUICtrlSetState($chkABQueenAttack, $GUI_CHECKED)
 	Else
 		GUICtrlSetState($chkABQueenAttack, $GUI_UNCHECKED)
+	EndIf
+
+	If BitAND($iHeroWait[$DB], $HERO_QUEEN) = $HERO_QUEEN Then
+		GUICtrlSetState($chkDBQueenWait, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBQueenWait, $GUI_UNCHECKED)
+	EndIf
+	If BitAND($iHeroWait[$LB], $HERO_QUEEN) = $HERO_QUEEN Then
+		GUICtrlSetState($chkABQueenWait, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABQueenWait, $GUI_UNCHECKED)
 	EndIf
 
 	If $iDropCC[$DB] = 1 Then
@@ -315,12 +355,35 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	Else
 		GUICtrlSetState($chkDBDropCC, $GUI_UNCHECKED)
 	EndIf
-
 	If $iDropCC[$LB] = 1 Then
 		GUICtrlSetState($chkABDropCC, $GUI_CHECKED)
 	Else
 		GUICtrlSetState($chkABDropCC, $GUI_UNCHECKED)
 	EndIf
+
+	If BitAND($iHeroAttack[$DB], $HERO_WARDEN) = $HERO_WARDEN Then
+		GUICtrlSetState($chkDBWardenAttack, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBWardenAttack, $GUI_UNCHECKED)
+	EndIf
+	If BitAND($iHeroAttack[$LB], $HERO_WARDEN) = $HERO_WARDEN Then
+		GUICtrlSetState($chkABWardenAttack, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABWardenAttack, $GUI_UNCHECKED)
+	EndIf
+
+	If BitAND($iHeroWait[$DB], $HERO_WARDEN) = $HERO_WARDEN Then
+		GUICtrlSetState($chkDBWardenWait, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBWardenWait, $GUI_UNCHECKED)
+	EndIf
+	If BitAND($iHeroWait[$LB], $HERO_WARDEN) = $HERO_WARDEN Then
+		GUICtrlSetState($chkABWardenWait, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABWardenWait, $GUI_UNCHECKED)
+	EndIf
+	chkDBHeroWait()
+	chkABHeroWait()
 
 	If $iChkUseCCBalanced = 1 Then
 		GUICtrlSetState($chkUseCCBalanced, $GUI_CHECKED)
@@ -340,7 +403,14 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 			GUICtrlSetState($radAutoAbilities, $GUI_CHECKED)
 	EndSwitch
 
+	If $iActivateWardenCondition = 1 Then
+		GUICtrlSetState($chkUseWardenAbility, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkUseWardenAbility, $GUI_UNCHECKED)
+	EndIf
+
 	GUICtrlSetData($txtManAbilities, ($delayActivateKQ / 1000))
+	GUICtrlSetData($txtWardenAbility, ($delayActivateW / 1000))
 
 	If $TakeLootSnapShot = 1 Then
 		GUICtrlSetState($chkTakeLootSS, $GUI_CHECKED)
@@ -392,8 +462,27 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		GUICtrlSetState($chkTrophyMode, $GUI_UNCHECKED)
 	EndIf
 	GUICtrlSetData($txtTHaddTiles, $THaddTiles)
-	_GUICtrlComboBox_SetCurSel($cmbAttackTHType, $icmbAttackTHType)
-	_GUICtrlComboBox_SetCurSel($cmbAttackbottomType, $icmbDeployBtmTHType)
+;~ 	_GUICtrlComboBox_SetCurSel($cmbAttackTHType, $icmbAttackTHType)
+
+	If $iChkEnableAfter[$TS] = 1 Then
+		GUICtrlSetState($chkTSEnableAfter, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkTSEnableAfter, $GUI_UNCHECKED)
+	EndIf
+
+	If $iChkMeetDE[$TS] = 1 Then
+		GUICtrlSetState($chkTSMeetDE, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkTSMeetDE, $GUI_UNCHECKED)
+	EndIf
+	chkTSEnableAfter()
+	GUICtrlSetData($txtTSEnableAfter, $iEnableAfterCount[$TS])
+	GUICtrlSetData($txtTSMinGold, $iMinGold[$TS])
+	GUICtrlSetData($txtTSMinElixir, $iMinElixir[$TS])
+	GUICtrlSetData($txtTSMinGoldPlusElixir, $iMinGoldPlusElixir[$TS])
+	GUICtrlSetData($txtTSMinDarkElixir, $iMinDark[$TS])
+	_GUICtrlComboBox_SetCurSel($cmbTSMeetGE, $iCmbMeetGE[$TS])
+	cmbTSGoldElixir()
 
 	If $ichkUseKingTH = 1 Then
 		GUICtrlSetState($chkUseKingTH, $GUI_CHECKED)
@@ -507,14 +596,45 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		GUICtrlSetState($chkEndTwoStars, $GUI_UNCHECKED)
 	EndIf
 
-
-
 	If $ichkEndNoResources = 1 Then
 		GUICtrlSetState($chkEndNoResources, $GUI_CHECKED)
 	Else
 		GUICtrlSetState($chkEndNoResources, $GUI_UNCHECKED)
 	EndIf
 
+
+
+	If $DESideEB = 1 Then
+		GUICtrlSetState($chkDESideEB, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDESideEB, $GUI_UNCHECKED)
+	EndIf
+	chkDESideEB()
+	GUICtrlSetData($txtDELowEndMin, $DELowEndMin)
+
+	If $DisableOtherEBO = 1 Then
+		GUICtrlSetState($chkDisableOtherEBO, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDisableOtherEBO, $GUI_UNCHECKED)
+	EndIf
+
+	If $DEEndOneStar = 1 Then
+		GUICtrlSetState($chkDEEndOneStar, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDEEndOneStar, $GUI_UNCHECKED)
+	EndIf
+
+	If $DEEndBk = 1 Then
+		GUICtrlSetState($chkDEEndBk, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDEEndBk, $GUI_UNCHECKED)
+	EndIf
+
+	If $DEEndAq = 1 Then
+		GUICtrlSetState($chkDEEndAq, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDEEndAq, $GUI_UNCHECKED)
+	EndIf
 
 	;Donate Settings-------------------------------------------------------------------------
 	If $ichkRequest = 1 Then
@@ -669,6 +789,33 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	GUICtrlSetData($txtDonateLavaHounds, $sTxtDonateLavaHounds)
 	GUICtrlSetData($txtBlacklistLavaHounds, $sTxtBlacklistLavaHounds)
 
+	If $ichkDonatePoisonSpells = 1 Then
+		GUICtrlSetState($chkDonatePoisonSpells, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDonatePoisonSpells, $GUI_UNCHECKED)
+	EndIf
+	chkDonatePoisonSpells()
+	GUICtrlSetData($txtDonatePoisonSpells, $sTxtDonatePoisonSpells)
+	GUICtrlSetData($txtBlacklistPoisonSpells, $sTxtBlacklistPoisonSpells)
+
+	If $ichkDonateEarthQuakeSpells = 1 Then
+		GUICtrlSetState($chkDonateEarthQuakeSpells, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDonateEarthQuakeSpells, $GUI_UNCHECKED)
+	EndIf
+	chkDonateEarthQuakeSpells()
+	GUICtrlSetData($txtDonateEarthQuakeSpells, $sTxtDonateEarthQuakeSpells)
+	GUICtrlSetData($txtBlacklistEarthQuakeSpells, $sTxtBlacklistEarthQuakeSpells)
+
+	If $ichkDonateHasteSpells = 1 Then
+		GUICtrlSetState($chkDonateHasteSpells, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDonateHasteSpells, $GUI_UNCHECKED)
+	EndIf
+	chkDonateHasteSpells()
+	GUICtrlSetData($txtDonateHasteSpells, $sTxtDonateHasteSpells)
+	GUICtrlSetData($txtBlacklistHasteSpells, $sTxtBlacklistHasteSpells)
+
 	;;; Custom Combination Donate by ChiefM3
 	If $ichkDonateCustom = 1 Then
 		GUICtrlSetState($chkDonateCustom, $GUI_CHECKED)
@@ -801,6 +948,27 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		GUICtrlSetState($chkDonateAllLavaHounds, $GUI_UNCHECKED)
 	EndIf
 
+	If $ichkDonateAllPoisonSpells = 1 Then
+		GUICtrlSetState($chkDonateAllPoisonSpells, $GUI_CHECKED)
+		_DonateAllControlsSpell(0, True)
+	Else
+		GUICtrlSetState($chkDonateAllPoisonSpells, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkDonateAllEarthQuakeSpells = 1 Then
+		GUICtrlSetState($chkDonateAllEarthQuakeSpells, $GUI_CHECKED)
+		_DonateAllControlsSpell(1, True)
+	Else
+		GUICtrlSetState($chkDonateAllEarthQuakeSpells, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkDonateAllHasteSpells = 1 Then
+		GUICtrlSetState($chkDonateAllHasteSpells, $GUI_CHECKED)
+		_DonateAllControlsSpell(2, True)
+	Else
+		GUICtrlSetState($chkDonateAllHasteSpells, $GUI_UNCHECKED)
+	EndIf
+
 	If $ichkDonateAllCustom = 1 Then
 		GUICtrlSetState($chkDonateAllCustom, $GUI_CHECKED)
 		_DonateAllControls(16, True)
@@ -809,15 +977,15 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	EndIf
 
 	; Extra Alphabets , Cyrillic.
-	If $ichkExtraAlphabets = 0 then
+	If $ichkExtraAlphabets = 0 Then
 		GUICtrlSetState($chkExtraAlphabets, $GUI_UNCHECKED)
-	ElseIf $ichkExtraAlphabets = 1 then
+	ElseIf $ichkExtraAlphabets = 1 Then
 		GUICtrlSetState($chkExtraAlphabets, $GUI_CHECKED)
 	EndIf
 
 	;Troop Settings--------------------------------------------------------------------------
 	_GUICtrlComboBox_SetCurSel($cmbTroopComp, $iCmbTroopComp)
-
+	_GUICtrlComboBox_SetCurSel($cmbDarkTroopComp, $iCmbDarkTroopComp)
 	For $i = 0 To UBound($TroopName) - 1
 		GUICtrlSetData(Eval("txtNum" & $TroopName[$i]), Eval($TroopName[$i] & "Comp"))
 	Next
@@ -825,6 +993,7 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		GUICtrlSetData(Eval("txtNum" & $TroopDarkName[$i]), Eval($TroopDarkName[$i] & "Comp"))
 	Next
 	SetComboTroopComp()
+	SetComboDarkTroopComp()
 	lblTotalCount()
 
 	_GUICtrlComboBox_SetCurSel($cmbBarrack1, $barrackTroop[0])
@@ -832,30 +1001,37 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	_GUICtrlComboBox_SetCurSel($cmbBarrack3, $barrackTroop[2])
 	_GUICtrlComboBox_SetCurSel($cmbBarrack4, $barrackTroop[3])
 
+	_GUICtrlComboBox_SetCurSel($cmbDarkBarrack1, $darkBarrackTroop[0])
+	_GUICtrlComboBox_SetCurSel($cmbDarkBarrack2, $darkBarrackTroop[1])
+
 	GUICtrlSetData($txtFullTroop, $fulltroop)
 	GUICtrlSetData($sldTrainITDelay, $isldTrainITDelay)
 	GUICtrlSetData($lbltxtTrainITDelay, "delay " & $isldTrainITDelay & " ms.")
 	;barracks boost not saved (no use)
 
 	; Spells Creation  ---------------------------------------------------------------------
-	GUICtrlSetData ($txtNumLightningSpell, $LightningSpellComp)
-	GUICtrlSetData ($txtNumRageSpell, $RageSpellComp)
-    GUICtrlSetData ($txtNumHealSpell, $HealSpellComp)
-	GUICtrlSetData ($txtNumPoisonSpell, $PoisonSpellComp)
-	GUICtrlSetData ($txtNumHasteSpell, $HasteSpellComp)
-	GUICtrlSetData ($txtTotalCountSpell, $iTotalCountSpell)
+	GUICtrlSetData($txtNumLightningSpell, $iLightningSpellComp)
+	GUICtrlSetData($txtNumRageSpell, $iRageSpellComp)
+	GUICtrlSetData($txtNumHealSpell, $iHealSpellComp)
+	GUICtrlSetData($txtNumJumpSpell, $iJumpSpellComp)
+	GUICtrlSetData($txtNumFreezeSpell, $iFreezeSpellComp)
+	GUICtrlSetData($txtNumPoisonSpell, $iPoisonSpellComp)
+	GUICtrlSetData($txtNumEarthSpell, $iEarthSpellComp)
+	GUICtrlSetData($txtNumHasteSpell, $iHasteSpellComp)
+	GUICtrlSetData($txtTotalCountSpell, $iTotalCountSpell)
 	lblTotalCountSpell()
+	btnHideElixir()
 
 	;PushBullet-----------------------------------------------------------------------------
 
 	GUICtrlSetData($PushBTokenValue, $PushToken)
 	GUICtrlSetData($OrigPushB, $iOrigPushB)
 
-;~ 	If $iOrigPushB = "" Then
-;~ 		GUICtrlSetData($OrigPushB, $txtVillageName)
-;~ 	Else
-;~ 		GUICtrlSetData($OrigPushB, $iOrigPushB)
-;~ 	EndIf
+ 	If $iOrigPushB = "" Then
+ 		GUICtrlSetData($OrigPushB, $sCurrProfile)
+	Else
+ 		GUICtrlSetData($OrigPushB, $iOrigPushB)
+ 	EndIf
 
 	If $iAlertPBVillage = 1 Then
 		GUICtrlSetState($chkAlertPBVillage, $GUI_CHECKED)
@@ -953,6 +1129,46 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	GUICtrlSetImage($icnLabUpgrade, $pIconLib, $aLabTroops[$iCmbLaboratory][4])
 	chkLab()
 
+	;Heroes upgrade
+	If $ichkUpgradeKing = 1 Then
+		GUICtrlSetState($chkUpgradeKing, $GUI_CHECKED)
+		GUICtrlSetState($chkDBKingWait, $GUI_UNCHECKED)
+		GUICtrlSetState($chkABKingWait, $GUI_UNCHECKED)
+		GUICtrlSetState($chkDBKingWait, $GUI_DISABLE)
+		GUICtrlSetState($chkABKingWait, $GUI_DISABLE)
+	Else
+		GUICtrlSetState($chkUpgradeKing, $GUI_UNCHECKED)
+		GUICtrlSetState($chkDBKingWait, $GUI_ENABLE)
+		GUICtrlSetState($chkABKingWait, $GUI_ENABLE)
+	EndIf
+	chkUpgradeKing()
+
+	If $ichkUpgradeQueen = 1 Then
+		GUICtrlSetState($chkUpgradeQueen, $GUI_CHECKED)
+		GUICtrlSetState($chkDBQueenWait, $GUI_UNCHECKED)
+		GUICtrlSetState($chkABQueenWait, $GUI_UNCHECKED)
+		GUICtrlSetState($chkDBQueenWait, $GUI_DISABLE)
+		GUICtrlSetState($chkABQueenWait, $GUI_DISABLE)
+	Else
+		GUICtrlSetState($chkUpgradeQueen, $GUI_UNCHECKED)
+		GUICtrlSetState($chkDBQueenWait, $GUI_ENABLE)
+		GUICtrlSetState($chkABQueenWait, $GUI_ENABLE)
+	EndIf
+	chkUpgradeQueen()
+
+	If $ichkUpgradeWarden = 1 Then
+		GUICtrlSetState($chkUpgradeWarden, $GUI_CHECKED)
+		GUICtrlSetState($chkDBWardenWait, $GUI_UNCHECKED)
+		GUICtrlSetState($chkABWardenWait, $GUI_UNCHECKED)
+		GUICtrlSetState($chkDBWardenWait, $GUI_DISABLE)
+		GUICtrlSetState($chkABWardenWait, $GUI_DISABLE)
+	Else
+		GUICtrlSetState($chkUpgradeWarden, $GUI_UNCHECKED)
+		GUICtrlSetState($chkDBWardenWait, $GUI_ENABLE)
+		GUICtrlSetState($chkABWardenWait, $GUI_ENABLE)
+	EndIf
+	chkUpgradeWarden()
+
 	_GUICtrlComboBox_SetCurSel($cmbWalls, $icmbWalls)
 	Switch $iUseStorage
 		Case 0
@@ -968,7 +1184,7 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	cmbwalls()
 
 	GUICtrlSetData($txtRestartGold, $itxtRestartGold)
-	GUICtrlSetData($txtRestartElixir , $itxtRestartElixir)
+	GUICtrlSetData($txtRestartElixir, $itxtRestartElixir)
 	GUICtrlSetData($txtRestartDark, $itxtRestartDark)
 
 	If $ichkWalls = 1 Then
@@ -977,6 +1193,9 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		GUICtrlSetState($chkWalls, $GUI_UNCHECKED)
 	EndIf
 	chkWalls()
+
+	;Slider Upgrade Walls
+	GUICtrlSetData($sldMaxNbWall, $iMaxNbWall)
 
 	If $iSaveWallBldr = 1 Then
 		GUICtrlSetState($chkSaveWallBldr, $GUI_CHECKED)
@@ -1035,6 +1254,12 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		GUICtrlSetState($chkTombstones, $GUI_UNCHECKED)
 	EndIf
 
+	If $ichkCleanYard = 1 Then
+		GUICtrlSetState($chkCleanYard, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkCleanYard, $GUI_UNCHECKED)
+	EndIf
+
 	GUICtrlSetData($txtTimeWakeUp, $sTimeWakeUp)
 
 	If $iVSDelay > $iMaxVSDelay Then $iMaxVSDelay = $iVSDelay ; check for illegal condition
@@ -1057,6 +1282,8 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	Else
 		GUICtrlSetState($chkTrophyAtkDead, $GUI_UNCHECKED)
 	EndIf
+	GUICtrlSetData($txtDTArmyMin, $itxtDTArmyMin)
+	chkTrophyAtkDead()
 
 	;location of TH, CC, Army Camp, Barrack and Spell Fact. not Applied, only read
 
@@ -1140,9 +1367,9 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		Else
 			GUICtrlSetState(Eval("chkDropCCHours" & $i), $GUI_UNCHECKED)
 		EndIf
-	 Next
+	Next
 
-	 For $i = 0 To 23
+	For $i = 0 To 23
 		If $iPlannedBoostBarracksHours[$i] = 1 Then
 			GUICtrlSetState(Eval("chkBoostBarracksHours" & $i), $GUI_CHECKED)
 		Else
@@ -1189,6 +1416,13 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	If $DevMode = 1 Then
 		GUICtrlSetState($chkDebugSetlog, $GUI_ENABLE)
 		GUICtrlSetState($chkDebugOcr, $GUI_ENABLE)
+		GUICtrlSetState($chkDebugImageSave, $GUI_ENABLE)
+		GUICtrlSetState($chkdebugBuildingPos, $GUI_ENABLE)
+		GUICtrlSetState($chkmakeIMGCSV, $GUI_ENABLE)
+		GUICtrlSetState($btnTestVillage, $GUI_SHOW)
+		GUICtrlSetState($btnTestVillage, $GUI_SHOW)
+		GUICtrlSetState($chkmakeIMGCSV, $GUI_SHOW)
+
 	EndIf
 
 	If $DebugSetlog = 1 Then
@@ -1203,6 +1437,24 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 		GUICtrlSetState($chkDebugOcr, $GUI_UNCHECKED)
 	EndIf
 
+	If $DebugImageSave = 1 Then
+		GUICtrlSetState($chkDebugImageSave, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDebugImageSave, $GUI_UNCHECKED)
+	EndIf
+
+	If $debugBuildingPos = 1 Then
+		GUICtrlSetState($chkdebugBuildingPos, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkdebugBuildingPos, $GUI_UNCHECKED)
+	EndIf
+
+	If $makeIMGCSV = 1 Then
+		GUICtrlSetState($chkmakeIMGCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkmakeIMGCSV, $GUI_UNCHECKED)
+	EndIf
+
 
 	;forced Total Camp values
 	If $ichkTotalCampForced = 1 Then
@@ -1213,7 +1465,14 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	GUICtrlSetData($txtTotalCampForced, $iValueTotalCampForced)
 	chkTotalCampForced()
 
-
+	If $ichkSinglePBTForced = 1 Then
+		GUICtrlSetState($chkSinglePBTForced, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkSinglePBTForced, $GUI_UNCHECKED)
+	EndIf
+	GUICtrlSetData($txtSinglePBTimeForced, $iValueSinglePBTimeForced)
+	GUICtrlSetData($txtPBTimeForcedExit , $iValuePBTimeForcedExit)
+	chkSinglePBTForced()
 
 	If $ichkLanguage = 1 Then
 		GUICtrlSetState($chkLanguage, $GUI_CHECKED)
@@ -1226,5 +1485,234 @@ Func applyConfig() ;Applies the data from config to the controls in GUI
 	Else
 		GUICtrlSetState($chkVersion, $GUI_UNCHECKED)
 	EndIf
+
+;~ 	;Snipe While Train
+	If $iChkSnipeWhileTrain = 1 Then
+		GUICtrlSetState($ChkSnipeWhileTrain, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($ChkSnipeWhileTrain, $GUI_UNCHECKED)
+	EndIf
+	GUICtrlSetData($txtSearchlimit, $itxtSearchlimit)
+	GUICtrlSetData($txtminArmyCapacityTHSnipe, $itxtminArmyCapacityTHSnipe)
+	GUICtrlSetData($txtSWTTiles, $itxtSWTtiles)
+	ChkSnipeWhileTrain()
+
+	;multilanguage
+	LoadLanguagesComboBox() ; recreate combo box values
+	_GUICtrlComboBox_SetCurSel($cmbLanguage, _GUICtrlComboBox_FindStringExact($cmbLanguage, $aLanguageFile[_ArraySearch($aLanguageFile, $sLanguage)][1]))
+
+	;th snipe custom attacks
+	LoadThSnipeAttacks() ; recreate combo box values
+	_GUICtrlComboBox_SetCurSel($cmbAttackTHType, _GUICtrlComboBox_FindStringExact($cmbAttackTHType, $scmbAttackTHType))
+
+	;AttackCSV
+	If $KingAttackCSV[$DB] = 1 Then
+		GUICtrlSetState($chkDBKingAttackCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBKingAttackCSV, $GUI_UNCHECKED)
+	EndIf
+	If $KingAttackCSV[$LB] = 1 Then
+		GUICtrlSetState($chkABKingAttackCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABKingAttackCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $QueenAttackCSV[$DB] = 1 Then
+		GUICtrlSetState($chkDBQueenAttackCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBQueenAttackCSV, $GUI_UNCHECKED)
+	EndIf
+	If $QueenAttackCSV[$LB] = 1 Then
+		GUICtrlSetState($chkABQueenAttackCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABQueenAttackCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $iDropCCCSV[$DB] = 1 Then
+		GUICtrlSetState($chkDBDropCCCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBDropCCCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $iDropCCCSV[$LB] = 1 Then
+		GUICtrlSetState($chkABDropCCCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABDropCCCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $WardenAttackCSV[$DB] = 1 Then
+		GUICtrlSetState($chkDBWardenAttackCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBWardenAttackCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $WardenAttackCSV[$LB] = 1 Then
+		GUICtrlSetState($chkABWardenAttackCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABWardenAttackCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $iChkUseCCBalancedCSV = 1 Then
+		GUICtrlSetState($chkUseCCBalancedCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkUseCCBalancedCSV, $GUI_UNCHECKED)
+	EndIf
+
+	_GUICtrlComboBox_SetCurSel($cmbCCDonatedCSV, $iCmbCCDonatedCSV - 1)
+	_GUICtrlComboBox_SetCurSel($cmbCCReceivedCSV, $iCmbCCReceivedCSV - 1)
+
+	chkBalanceDRCSV()
+
+	If $ichkLightSpell[$DB] = 1 Then
+		GUICtrlSetState($chkDBLightSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBLightSpellCSV, $GUI_UNCHECKED)
+	EndIf
+	If $ichkLightSpell[$LB] = 1 Then
+		GUICtrlSetState($chkABLightSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABLightSpellCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkHealSpell[$DB] = 1 Then
+		GUICtrlSetState($chkDBHealSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBHealSpellCSV, $GUI_UNCHECKED)
+	EndIf
+	If $ichkHealSpell[$LB] = 1 Then
+		GUICtrlSetState($chkABHealSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABHealSpellCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkRageSpell[$DB] = 1 Then
+		GUICtrlSetState($chkDBRageSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBRageSpellCSV, $GUI_UNCHECKED)
+	EndIf
+	If $ichkRageSpell[$LB] = 1 Then
+		GUICtrlSetState($chkABRageSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABRageSpellCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkJumpSpell[$DB] = 1 Then
+		GUICtrlSetState($chkDBJumpSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBJumpSpellCSV, $GUI_UNCHECKED)
+	EndIf
+	If $ichkJumpSpell[$LB] = 1 Then
+		GUICtrlSetState($chkABJumpSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABJumpSpellCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkFreezeSpell[$DB] = 1 Then
+		GUICtrlSetState($chkDBFreezeSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBFreezeSpellCSV, $GUI_UNCHECKED)
+	EndIf
+	If $ichkFreezeSpell[$LB] = 1 Then
+		GUICtrlSetState($chkABFreezeSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABFreezeSpellCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkPoisonSpell[$DB] = 1 Then
+		GUICtrlSetState($chkDBPoisonSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBPoisonSpellCSV, $GUI_UNCHECKED)
+	EndIf
+	If $ichkPoisonSpell[$LB] = 1 Then
+		GUICtrlSetState($chkABPoisonSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABPoisonSpellCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkEarthquakeSpell[$DB] = 1 Then
+		GUICtrlSetState($chkDBEarthquakeSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBEarthquakeSpellCSV, $GUI_UNCHECKED)
+	EndIf
+	If $ichkEarthquakeSpell[$LB] = 1 Then
+		GUICtrlSetState($chkABEarthquakeSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABEarthquakeSpellCSV, $GUI_UNCHECKED)
+	EndIf
+
+	If $ichkHasteSpell[$DB] = 1 Then
+		GUICtrlSetState($chkDBHasteSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkDBHasteSpellCSV, $GUI_UNCHECKED)
+	EndIf
+	If $ichkHasteSpell[$LB] = 1 Then
+		GUICtrlSetState($chkABHasteSpellCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkABHasteSpellCSV, $GUI_UNCHECKED)
+	EndIf
+
+
+
+
+
+
+
+
+
+
+
+
+	Switch $iActivateKQConditionCSV
+		Case "Manual"
+			GUICtrlSetState($radManAbilitiesCSV, $GUI_CHECKED)
+		Case "Auto"
+			GUICtrlSetState($radAutoAbilitiesCSV, $GUI_CHECKED)
+	EndSwitch
+
+	If $iActivateWardenConditionCSV = 1 Then
+		GUICtrlSetState($chkUseWardenAbilityCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkUseWardenAbilityCSV, $GUI_UNCHECKED)
+	EndIf
+
+	GUICtrlSetData($txtManAbilitiesCSV, ($delayActivateKQCSV / 1000))
+
+
+	;attackCSV
+	PopulateDBComboScriptsFiles() ; recreate combo box values
+	Local $tempindex = _GUICtrlComboBox_FindStringExact($cmbDBScriptName, $scmbDBScriptName)
+	If $tempindex=-1 Then
+	   $tempindex=0
+	   Setlog("Previous saved Scripted Attack not found (deleted, renamed?)",$color_red)
+	   Setlog("Automatically setted a default script, please check your config",$color_red)
+   EndIf
+	_GUICtrlComboBox_SetCurSel($cmbDBScriptName, $tempindex)
+	cmbDBScriptName()
+	If $ichkUseAttackDBCSV = 1 Then
+		GUICtrlSetState($chkUseAttackDBCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkUseAttackDBCSV, $GUI_UNCHECKED)
+	EndIf
+	chkUseAttackDBCSV()
+
+	PopulateABComboScriptsFiles() ; recreate combo box values
+	$tempindex = _GUICtrlComboBox_FindStringExact($cmbABScriptName, $scmbABScriptName)
+	If $tempindex=-1 Then
+	   $tempindex=0
+	   Setlog("Previous saved Scripted Attack not found (deleted, renamed?)",$color_red)
+	   Setlog("Automatically setted a default script, please check your config.",$color_red)
+   EndIf
+	_GUICtrlComboBox_SetCurSel($cmbABScriptName, $tempindex)
+	cmbABScriptName()
+	If $ichkUseAttackABCSV = 1 Then
+		GUICtrlSetState($chkUseAttackABCSV, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkUseAttackABCSV, $GUI_UNCHECKED)
+	EndIf
+	chkUseAttackABCSV()
+
+
+	; Reenabling window redraw
+	If $bRedrawAtExit Then SetRedrawBotWindow(True)
 
 EndFunc   ;==>applyConfig

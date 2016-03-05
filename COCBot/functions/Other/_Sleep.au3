@@ -7,7 +7,7 @@
 ; Return values .: None
 ; Author ........:
 ; Modified ......:
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -22,12 +22,18 @@ Func _Sleep($iDelay, $iSleep = True)
 			MakeScreenshot($dirTemp, "png")
 		EndIf
 	EndIf
+    If $RunState = False Then
+	    ResumeAndroid()
+	    Return True
+    EndIf
 	Local $iBegin = TimerInit()
 	While TimerDiff($iBegin) < $iDelay
-		If $RunState = False Then Return True
+		If $RunState = False Then
+		   ResumeAndroid()
+		   Return True
+		EndIf
 		tabMain()
 		If $iSleep = True Then Sleep(50)
 	WEnd
 	Return False
 EndFunc   ;==>_Sleep
-

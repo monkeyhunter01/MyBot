@@ -8,7 +8,7 @@
 ; Modified ......: Sardo and Didipe (2015-05) rewrite code
 ;				   kgns (2015-06) $pushLastModified addition
 ;				   Sardo (2015-06) compliant with new pushbullet syntax (removed title)
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -165,7 +165,9 @@ Func _PushBullet($pMessage = "")
 	$oHTTP.Open("Post", "https://api.pushbullet.com/v2/pushes", False)
 	$oHTTP.SetCredentials($access_token, "", 0)
 	$oHTTP.SetRequestHeader("Content-Type", "application/json")
-	Local $pPush = '{"type": "note", "body": "' & $pMessage & '"}'
+	Local $Date = @YEAR & "-" & @MON & "-" & @MDAY
+	Local $Time = @HOUR & "." & @MIN
+	Local $pPush = '{"type": "note", "body": "' & $pMessage & "\n" & $Date & "__" & $Time & '"}'
 	$oHTTP.Send($pPush)
 
 EndFunc   ;==>_PushBullet
@@ -178,7 +180,9 @@ Func _Push($pMessage)
 	$oHTTP.Open("Post", "https://api.pushbullet.com/v2/pushes", False)
 	$oHTTP.SetCredentials($access_token, "", 0)
 	$oHTTP.SetRequestHeader("Content-Type", "application/json")
-	Local $pPush = '{"type": "note", "body": "' & $pMessage & '"}'
+	Local $Date = @YEAR & "-" & @MON & "-" & @MDAY
+	Local $Time = @HOUR & "." & @MIN
+	Local $pPush = '{"type": "note", "body": "' & $pMessage & "\n" & $Date & "__" & $Time & '"}'
 	$oHTTP.Send($pPush)
 
 EndFunc   ;==>_Push
@@ -207,7 +211,7 @@ Func _PushFile($File, $Folder, $FileType, $body)
 		Local $file_url = _StringBetween($Result, 'file_url":"', '"')
 
 		If IsArray($upload_url) And IsArray($awsaccesskeyid) And IsArray($acl) And IsArray($key) And IsArray($signature) And IsArray($policy) Then
-			$Result = RunWait(@ScriptDir & "\curl\curl.exe -i -X POST " & $upload_url[0] & ' -F awsaccesskeyid="' & $awsaccesskeyid[0] & '" -F acl="' & $acl[0] & '" -F key="' & $key[0] & '" -F signature="' & $signature[0] & '" -F policy="' & $policy[0] & '" -F content-type="' & $FileType & '" -F file=@"' & $sProfilePath & "\" & $sCurrProfile & '\' & $Folder & '\' & $File & '"', "", @SW_HIDE)
+			$Result = RunWait($pCurl & " -i -X POST " & $upload_url[0] & ' -F awsaccesskeyid="' & $awsaccesskeyid[0] & '" -F acl="' & $acl[0] & '" -F key="' & $key[0] & '" -F signature="' & $signature[0] & '" -F policy="' & $policy[0] & '" -F content-type="' & $FileType & '" -F file=@"' & $sProfilePath & "\" & $sCurrProfile & '\' & $Folder & '\' & $File & '"', "", @SW_HIDE)
 
 			$oHTTP.Open("Post", "https://api.pushbullet.com/v2/pushes", False)
 			$oHTTP.SetCredentials($access_token, "", 0)
@@ -282,7 +286,7 @@ Func PushMsg($Message, $Source = "")
 				SetLog("Pushbullet: Last Raid Text has been sent!", $COLOR_GREEN)
 			EndIf
 			If $pEnabled = 1 And $pLastRaidImg = 1 Then
-				_CaptureRegion(0, 0, 860, 675)
+				_CaptureRegion(0, 0, $DEFAULT_WIDTH, $DEFAULT_HEIGHT - 45)
 				;create a temporary file to send with pushbullet...
 				Local $Date = @YEAR & "-" & @MON & "-" & @MDAY
 				Local $Time = @HOUR & "." & @MIN
@@ -335,7 +339,7 @@ Func PushMsg($Message, $Source = "")
 		Case "RequestScreenshot"
 			Local $Date = @YEAR & "-" & @MON & "-" & @MDAY
 			Local $Time = @HOUR & "." & @MIN
-			_CaptureRegion(0, 0, 860, 720)
+			_CaptureRegion(0, 0, $DEFAULT_WIDTH, $DEFAULT_HEIGHT)
 			$hBitmap_Scaled = _GDIPlus_ImageResize($hBitmap, _GDIPlus_ImageGetWidth($hBitmap) / 2, _GDIPlus_ImageGetHeight($hBitmap) / 2) ;resize image
 			Local $Screnshotfilename = "Screenshot_" & $Date & "_" & $Time & ".jpg"
 			_GDIPlus_ImageSaveToFile($hBitmap_Scaled, $dirTemp & $Screnshotfilename)

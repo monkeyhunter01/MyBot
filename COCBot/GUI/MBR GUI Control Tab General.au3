@@ -6,7 +6,7 @@
 ; Return values .: None
 ; Author ........: GkevinOD (2014)
 ; Modified ......: Hervidero (2015)
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -136,4 +136,21 @@ Func MoveDivider()
 	GUICtrlSetState($divider, $GUI_FOCUS)
 
 EndFunc   ;==>MoveDivider
+
+
+Func XPStyleToggle($Off = 1)
+	Local $XS_n
+     If Not StringInStr(@OSTYPE, "WIN32_NT") Then Return 0
+
+     If $Off Then
+        $XS_n = DllCall("uxtheme.dll", "int", "GetThemeAppProperties")
+         DllCall("uxtheme.dll", "none", "SetThemeAppProperties", "int", 0)
+         Return 1
+     ElseIf IsArray($XS_n) Then
+         DllCall("uxtheme.dll", "none", "SetThemeAppProperties", "int", $XS_n[0])
+         $XS_n = ""
+         Return 1
+     EndIf
+     Return 0
+ EndFunc
 

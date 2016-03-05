@@ -6,7 +6,7 @@
 ; Return values .: None
 ; Author ........: GkevinOD (2014)
 ; Modified ......: Hervidero (2015)
-; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015
+; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
@@ -217,3 +217,16 @@ Func chkABWeakBase()
 		GUICtrlSetState($cmbABWeakWizTower, $GUI_DISABLE)
 	EndIf
 EndFunc   ;==>chkABWeakBase
+
+Func chkRestartSearchLimit()
+	If GUICtrlRead($ChkRestartSearchLimit) = $GUI_CHECKED Then
+		GUICtrlSetState($txtRestartSearchlimit, $GUI_ENABLE)
+	Else
+		GUICtrlSetState($txtRestartSearchlimit, $GUI_DISABLE)
+	EndIf
+EndFunc   ;==>chkRestartSearchLimit
+
+
+Func btnConfigureCollectors()
+	OpenGUI2()
+EndFunc
