@@ -21,11 +21,11 @@ Func getShieldInfo()
 	Local $sTimeResult = ""
 	Local $aString[3]
 	Local $iShieldSeconds
-	Local $iHour = 0, $iMin = 0, $iSec = 0
+	Local $iDay  = 0, $iHour = 0, $iMin = 0, $iSec = 0
 	Local $aPBReturnResult[3] = ["", "", ""] ; reset return values
 ; $aPBReturnResult[3] = [0] = string type of shield, [1] = string shield time remaining,  [2] = string Shield expire date/time used by _DateDiff()
 
-	$aPBReturnResult[1] = StringFormat("%02s", $iHour) & ":" & StringFormat("%02s", $iMin) & ":" & StringFormat("%02s", $iSec)
+	$aPBReturnResult[1] = StringFormat("%02s", ($iDay*24) + $iHour) & ":" & StringFormat("%02s", $iMin) & ":" & StringFormat("%02s", $iSec)
 
 	If IsMainPage() = False Then ; check for main page or do not try
 		Setlog("unable to read shield information", $COLOR_RED)
@@ -71,6 +71,11 @@ Func getShieldInfo()
 			If StringInStr($aString[1], "s", $STR_NOCASESENSEBASIC) Then  $iSec = Number($aString[1])
 		Case 2
 			Select
+				Case StringInStr($aString[1], "d", $STR_NOCASESENSEBASIC)
+					$iDay = Number($aString[1])
+					If StringInStr($aString[2], "h", $STR_NOCASESENSEBASIC) Then
+						$iHour = Number($aString[2])
+					EndIf
 				Case StringInStr($aString[1], "h", $STR_NOCASESENSEBASIC)
 					$iHour = Number($aString[1])
 					If StringInStr($aString[2], "m", $STR_NOCASESENSEBASIC) Then
@@ -91,10 +96,10 @@ Func getShieldInfo()
 			SetError(4, "Error processing time string")
 			Return $aPBReturnResult ; return zero value
 	EndSwitch
-	$aPBReturnResult[1] = StringFormat("%02s", $iHour) & ":" & StringFormat("%02s", $iMin) & ":" & StringFormat("%02s", $iSec)
+	$aPBReturnResult[1] = StringFormat("%02s", ($iDay*24) + $iHour) & ":" & StringFormat("%02s", $iMin) & ":" & StringFormat("%02s", $iSec)
 	If $debugSetlog = 1 Then Setlog("Shield Time String = " & $aPBReturnResult[1], $COLOR_PURPLE)
 
-	$iShieldSeconds = ($iHour * 3600) + ($iMin * 60) + $iSec ; add time into total seconds
+	$iShieldSeconds = ($iDay * 86400) + ($iHour * 3600) + ($iMin * 60) + $iSec ; add time into total seconds
 	If $debugSetlog = 1 Then Setlog("Computed Shield Seconds = " & $iShieldSeconds, $COLOR_PURPLE)
 
 	$aPBReturnResult[2] = _DateAdd('s', $iShieldSeconds, _NowCalc()) ; Find actual expire time from NOW.

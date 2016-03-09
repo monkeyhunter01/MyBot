@@ -779,17 +779,33 @@ Global $stxtMinGoldStopAtk2 = 1000, $stxtMinElixirStopAtk2 = 1000, $stxtMinDarkE
 Global $ichkEndOneStar = 0, $ichkEndTwoStars = 0
 
 ;ImprovedUpgradeBuildingHero
-Global $aUpgrades[6][4] = [[-1, -1, -1, ""], [-1, -1, -1, ""], [-1, -1, -1, ""], [-1, -1, -1, ""], [-1, -1, -1, ""], [-1, -1, -1, ""]] ;Store upgrade position x&y, value, and loot type
-Global $picUpgradeStatus[6], $ipicUpgradeStatus[6] ;Add indexable array variables for accessing the Upgrades GUI
-Global $picUpgradeType[6], $txtUpgradeX[6], $txtUpgradeY[6], $chkbxUpgrade[6], $txtUpgradeValue[6]
-Global $ichkbxUpgrade[6], $itxtUpgrMinGold, $itxtUpgrMinElixir, $txtUpgrMinDark, $itxtUpgrMinDark
+Global $iUpgradeSlots = 8
+Global $aUpgrades[$iUpgradeSlots][8]
+
+;Fill empty array [8] to store upgrade data
+For $i = 0 To $iUpgradeSlots - 1
+	$aUpgrades[$i][0] = -1  ; position x
+	$aUpgrades[$i][1] = -1  ; position y
+	$aUpgrades[$i][2] = -1  ; upgrade value
+	$aUpgrades[$i][3] = ""  ; string loot type required
+	$aUpgrades[$i][4] = ""  ; string Bldg Name
+	$aUpgrades[$i][5] = ""  ; string Bldg level
+	$aUpgrades[$i][6] = ""  ; string upgrade time
+	$aUpgrades[$i][7] = ""  ; string upgrade end date/time (_datediff compatible)
+Next
+
+Global $picUpgradeStatus[$iUpgradeSlots], $ipicUpgradeStatus[$iUpgradeSlots] ;Add indexable array variables for accessing the Upgrades GUI
+Global $picUpgradeType[$iUpgradeSlots], $txtUpgradeX[$iUpgradeSlots], $txtUpgradeY[$iUpgradeSlots], $chkbxUpgrade[$iUpgradeSlots]
+Global $txtUpgradeValue[$iUpgradeSlots], $chkUpgrdeRepeat[$iUpgradeSlots], $ichkUpgrdeRepeat[$iUpgradeSlots],$txtUpgradeLevel[$iUpgradeSlots]
+Global $itxtUpgradeLevel[$iUpgradeSlots], $ichkbxUpgrade[$iUpgradeSlots ], $txtUpgradeName[$iUpgradeSlots ],$txtUpgradeTime[$iUpgradeSlots]
+Global $itxtUpgrMinGold, $itxtUpgrMinElixir, $txtUpgrMinDark, $itxtUpgrMinDark
+
 Global $chkSaveWallBldr, $iSaveWallBldr
 Global $pushLastModified = 0
-
-
 ;UpgradeTroops
 Global $aLabPos[2] = [-1, -1]
 Global $iChkLab, $iCmbLaboratory, $iFirstTimeLab
+Global $sLabUpgradeTime = ""
 
 ; Array to hold Laboratory Troop information [LocX of upper left corner of image, LocY of upper left corner of image, PageLocation, Troop "name", Icon # in DLL file]
 Global Const $aLabTroops[25][5] = [ _
